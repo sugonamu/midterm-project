@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "william-samuel-balinchill.pbp.cs.ui.ac.id"]
 
+CSRF_TRUSTED_ORIGINS = ["http://localhost","http://127.0.0.1","http://pbp.cs.ui.ac.id/william.samuel/balinchill", "https://pbp.cs.ui.ac.id/william.samuel/balinchill"]
 
 # Application definition
 
