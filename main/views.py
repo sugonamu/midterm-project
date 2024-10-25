@@ -4,17 +4,38 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .forms import PropertyForm
-from .models import Property, User,Rating
+from .models import Property, UserProfile ,Rating, Booking
+from functools import wraps
 
+def is_host(user):
+    return user.is_authenticated and user.userprofile.role == 'host'
+
+def is_guest(user):
+    return user.is_authenticated and user.userprofile.role == 'guest'
+
+def user_is_host(view_func):
+    @login_required
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not is_host(request.user):
+            return render(request, 'not_host.html')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+@user_is_host
+def host_dashboard(request):
+    properties = request.user.properties.all() 
+    bookings = Booking.objects.filter(property__in=properties)
+    return render(request, 'host_dashboard.html', {'properties': properties, 'bookings': bookings})
 
 def home(request):
     if not request.user.is_authenticated:
         return redirect('main:login')
     properties = Property.objects.order_by('?')[:6]
-    user_properties = request.user.properties.all()
+    user_properties = request.user.properties.all() if request.user.userprofile.role == 'host' else []
     return render(request, 'home.html', {
         'properties': properties,
         'user_properties': user_properties,
@@ -47,6 +68,9 @@ def register(request):
             user.set_password(form.cleaned_data['password1'])
             user.save()
 
+            role = request.POST.get('role')
+            UserProfile.objects.create(user=user, role=role)
+
             messages.success(request, "Registration successful. You can now log in.")
             return redirect('main:login')
     else:
@@ -71,6 +95,7 @@ def property_detail(request, property_id):
         'user_rating': user_rating  
     })
 
+@user_is_host
 def add_property(request):
     if request.method == "POST":
         form = PropertyForm(request.POST, request.FILES)
@@ -78,11 +103,12 @@ def add_property(request):
             property_instance = form.save(commit=False)
             property_instance.host = request.user
             property_instance.save()
-            return redirect('main:home')
-    else:
-        form = PropertyForm()
-    return render(request, 'addproperty.html', {'form': form})
+            return JsonResponse({'success': True, 'message': 'Property added successfully.'})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
+@user_is_host
 def edit_property(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id, host=request.user)
 
@@ -97,6 +123,7 @@ def edit_property(request, property_id):
 
     return render(request, 'editproperty.html', {'form': form})
 
+@user_is_host
 def delete_property(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id)
     property_instance.delete()
