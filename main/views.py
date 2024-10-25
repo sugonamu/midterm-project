@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .forms import PropertyForm
-from .models import Property, User
+from .models import Property, User,Rating
 
 
 def home(request):
@@ -61,7 +61,15 @@ def logout(request):
 
 def property_detail(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id)
-    return render(request, 'property_detail.html', {'property': property_instance})
+    
+    user_rating = None
+    if request.user.is_authenticated:
+        user_rating = Rating.objects.filter(property=property_instance, user=request.user).first()
+
+    return render(request, 'property_detail.html', {
+        'property': property_instance,
+        'user_rating': user_rating  
+    })
 
 def add_property(request):
     if request.method == "POST":
@@ -105,3 +113,47 @@ def property_list(request):
 
 def error(request):
     return render(request, 'error.html')
+
+
+def property_reviews(request, property_id):
+    property = get_object_or_404(Property, id=property_id)
+    reviews = property.ratings.all()  # Get all ratings/reviews for the property
+    return render(request, 'property_reviews.html', {
+        'property': property,
+        'reviews': reviews
+    })
+
+
+@login_required
+def add_rating(request, property_id):
+    property_instance = get_object_or_404(Property, pk=property_id)
+    
+    # Check if the user has already rated this property
+    existing_rating = Rating.objects.filter(property=property_instance, user=request.user).first()
+    
+    if request.method == "POST":
+        rating_value = request.POST.get('rating')  # Get the rating from the form input
+        review_text = request.POST.get('review')   # Get the review text from the form
+
+        if existing_rating:
+            # Update existing rating
+            existing_rating.rating = rating_value
+            existing_rating.review = review_text
+            existing_rating.save()
+        else:
+            # Create a new rating
+            Rating.objects.create(
+                property=property_instance,
+                user=request.user,
+                rating=rating_value,
+                review=review_text
+            )
+
+        # Redirect to the property detail page or home after rating is added/updated
+        return redirect('main:property_detail', property_id=property_instance.id)
+
+    # If the method is GET, render the rating form
+    return render(request, 'add_rating.html', {
+        'property': property_instance,
+        'existing_rating': existing_rating
+    })
