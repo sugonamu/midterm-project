@@ -1,8 +1,17 @@
 from django.urls import path
-from main.views import show_main
+from . import views
 
 app_name = 'main'
 
 urlpatterns = [
-    path('', show_main, name='show_main'),
-]   
+    path('', views.home, name='home'),  
+    path('properties/', views.property_list, name='property_list'),  
+    path('login/', views.login_view, name='login'), 
+    path('logout/', views.logout, name='logout'),
+    path('register/', views.register, name='register'),  
+    path('error/', views.error, name='error'),
+    path('add_property/', views.add_property, name='add_property'),
+    path('properties/<uuid:property_id>/', views.property_detail, name='property_detail'),
+    path('edit_property/<uuid:property_id>/', views.edit_property, name='edit_property'),
+    path('property/delete/<uuid:property_id>/', views.delete_property, name='delete_property'),
+]

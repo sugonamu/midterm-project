@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+import uuid
 
 class Property(models.Model):
     host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
