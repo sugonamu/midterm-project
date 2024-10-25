@@ -28,7 +28,6 @@ class ProfileViewTest(TestCase):
         self.assertEqual(self.user.username, 'newusername')
         self.assertEqual(self.user.email, 'newemail@example.com')
 
-
     def test_profile_update_with_invalid_data(self):
         response = self.client.post(reverse('profile'), {
             'username': '',  # Invalid, username cannot be empty
