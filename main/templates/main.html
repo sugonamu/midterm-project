@@ -1,1 +1,57 @@
-<h1>Hello</h1>
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Airbnb Bali{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %}
+{% load static %}
+<div class="home-banner bg-cover bg-center h-64 flex items-center justify-center text-center text-white" style="background-image: url('{% static 'logo.png' %}')">
+    <div class="bg-black bg-opacity-50 p-6 rounded-md">
+        <h1 class="text-4xl font-bold mb-2">Welcome to Airbnb Bali</h1>
+        <p class="text-lg">Find your perfect stay in the tropical paradise of Bali!</p>
+    </div>
+</div>
+
+<section class="featured-properties text-center">
+    <h2 class="font-bold text-3xl mb-4">Featured Properties</h2>
+    
+    {% if properties %}
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for property in properties %}
+            <li>
+                {% include 'property_card.html' with property=property %}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="flex flex-col items-center justify-center mt-4">
+            <p class="text-gray-600 mb-2">No properties available.</p>
+            <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
+        </div>
+    {% endif %}
+</section>
+
+
+<section class="my-properties text-center mt-8">
+    <h2 class="font-bold text-3xl mb-4">My Properties</h2>
+    
+    {% if user_properties %}
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for property in user_properties %}
+            <li>
+                {% include 'property_card.html' with property=property %}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="flex flex-col items-center justify-center mt-4">
+            <p class="text-gray-600 mb-2">You have no properties listed.</p>
+            <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
+        </div>
+    {% endif %}
+    
+    <a href="{% url 'main:add_property' %}" class="add-property-button bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200 mb-4">Add Property</a>
+</section>
+<br>
+<br>
+{% endblock %}
