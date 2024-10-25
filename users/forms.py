@@ -6,10 +6,10 @@ from .models import Profile
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email']  # Include other fields if needed
+        fields = ['username', 'email', 'first_name', 'last_name'] 
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)  # Get the current user from kwargs
+        self.user = kwargs.pop('user', None)  # Get the current user
         super().__init__(*args, **kwargs)
 
     def clean_username(self):

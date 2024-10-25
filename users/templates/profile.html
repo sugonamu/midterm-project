@@ -16,6 +16,11 @@
             --westar: #e1dad5;
             --yuma: #ccbc94;
             --celeste-alt: #ccccc4;
+            --dark-bg: #2C2F33; /* Dark background color similar to the screenshot */
+            --button-blue: #5865F2; /* Button color similar to the image */
+            --input-bg: #35393F; /* Input field background */
+            --input-text: #B9BBBE; /* Input field text color */
+            --input-placeholder: #72767D; /* Input placeholder color */
         }
 
         * {
@@ -26,8 +31,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--spring-wood);
-            color: #333;
+            background-color: var(--dark-bg);
+            color: var(--input-text);
             padding: 20px;
         }
 
@@ -39,14 +44,23 @@
             background-color: var(--white-rock);
             padding: 30px;
             border-radius: 15px;
-            max-width: 600px;
+            max-width: 800px;
             margin: 40px auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .container:hover {
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        .form-section {
+            width: 45%;
+        }
+
+        .profile-preview {
+            background-color: var(--input-bg);
+            padding: 20px;
+            border-radius: 15px;
+            color: var(--input-text);
+            text-align: center;
+            width: 45%;
         }
 
         .profile-picture {
@@ -60,12 +74,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            text-align: center;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-        }
-
         .form-group {
             margin-bottom: 20px;
         }
@@ -74,145 +82,138 @@
             font-weight: bold;
             display: block;
             margin-bottom: 5px;
-            color: var(--tan);
+            color: var(--input-placeholder);
         }
 
-        .form-group input, 
-        .form-group textarea, 
-        .form-group select {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid var(--wafer-alt);
+            border: none;
             border-radius: 8px;
-            background-color: var(--westar);
+            background-color: var(--input-bg);
+            color: var(--input-text);
             font-size: 1em;
-            transition: border-color 0.3s ease;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--grain-brown);
-            outline: none;
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--input-placeholder);
         }
 
         .btn {
-            background-color: var(--grain-brown);
+            background-color: var(--button-blue);
             color: #fff;
             padding: 12px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
-            display: block;
-            width: 100%;
-            margin-top: 20px;
+            display: inline-block;
+            margin-top: 10px;
             text-align: center;
-            transition: background-color 0.3s ease;
         }
 
         .btn:hover {
             background-color: var(--tan);
         }
 
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
+        .btn-inline {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        /* Profile preview area styling */
+        .profile-name {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .status-button {
+            background-color: #4F545C;
+            border-radius: 5px;
+            color: var(--input-text);
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        .status-button:hover {
+            background-color: #72767D;
+        }
+
+        .example-button {
+            background-color: var(--button-blue);
+            padding: 12px;
+            border: none;
             border-radius: 8px;
-            font-size: 0.9em;
-        }
-
-        .alert-success {
-            background-color: rgba(212, 237, 218, 1);
-            color: rgba(21, 87, 36, 1);
-        }
-
-        .alert-danger {
-            background-color: rgba(248, 215, 218, 1);
-            color: rgba(114, 28, 36, 1);
-        }
-
-        /* Hide the update form by default */
-        .update-form {
-            display: none;
-        }
-        /* Show the update form if there are errors */
-        .update-form.show {
-        display: block;
+            color: #fff;
+            margin-top: 15px;
+            display: inline-block;
         }
     </style>
-<script>
-    function toggleUpdateForm() {
-        const form = document.querySelector('.update-form');
-        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
-    }
-
-    // Show the form if there are errors
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('.update-form');
-        // Correct usage of the yesno filter
-        if ({{ form_has_errors|yesno:"true,false" }}) {
-            form.classList.add('show');
-        }
-    });
-</script>
 </head>
 <body>
 
     <div class="container">
-        <h1>User Profile</h1>
+        <!-- Form Section -->
+        <div class="form-section">
+            <h1>Update Profile</h1>
 
-        <!-- Display messages -->
-        {% if messages %}
+            {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">
                     {{ message }}
                 </div>
             {% endfor %}
-        {% endif %}
+            {% endif %}
 
-        <!-- Display profile picture and username -->
-        <div>
-            <img src="{{ profile.user.profile.image.url }}" alt="{{ profile.user.username }}'s profile picture" class="profile-picture">
-            <h2>{{ profile.user.username }}</h2>
-            <p><strong>Email:</strong> {{ profile.user.email }}</p>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    {{ u_form.username.label_tag }}
+                    {{ u_form.username }}
+                    {% if u_form.username.errors %}
+                        <div class="text-danger">{{ u_form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    {{ u_form.first_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    {{ u_form.last_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    {{ u_form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-picture">Change Avatar</label>
+                    <input type="file" name="image" id="file-upload" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn">Update Profile</button>
+            </form>
         </div>
 
-        <!-- Edit Profile Button -->
-        <button class="btn" onclick="toggleUpdateForm()">Edit Profile</button>
+        <!-- Profile Preview Section -->
+        <div class="profile-preview">
+            <h2>Preview</h2>
 
-        <!-- Profile Update Form -->
-        <form method="POST" enctype="multipart/form-data" class="update-form">
-            {% csrf_token %}
-            
-            <h3>Update User Information</h3>
-            <div class="form-group">
-                {{ u_form.username.label_tag }}
-                {{ u_form.username }}
-                {% if u_form.username.errors %}
-                    <div class="text-danger">{{ u_form.username.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                {{ u_form.email.label_tag }}
-                {{ u_form.email }}
-                {% if u_form.email.errors %}
-                    <div class="text-danger">{{ u_form.email.errors }}</div>
-                {% endif %}
-            </div>
+            <img src="{{ profile.user.profile.image.url }}" alt="Profile Picture" class="profile-picture">
 
-            <h3>Update Profile Picture</h3>
-            <div class="form-group">
-                {{ p_form.image.label_tag }}
-                {{ p_form.image }}
-                {% if p_form.image.errors %}
-                    <div class="text-danger">{{ p_form.image.errors }}</div>
-                {% endif %}
-            </div>
-            
-            <!-- Submit Button -->
-            <button type="submit" class="btn">Update Profile</button>
-        </form>
+            <p class="profile-name">{{ profile.user.username }}</p>
+            <p>{{ profile.user.first_name }} {{ profile.user.last_name }}</p>   
+            <p>{{ profile.user.email }}</p>
+        </div>
     </div>
 
 </body>
