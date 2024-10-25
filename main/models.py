@@ -1,9 +1,11 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Avg, Count
 
 import uuid
 
+from django.contrib.auth.models import User
 
 class Property(models.Model):
     host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
