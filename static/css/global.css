@@ -68,11 +68,11 @@ button:hover {
 
 /* Footer styles */
 .footer {
-    background-color: #a59381; /* Tan from the palette */
-    color: #f9f7f4; /* Light cream */
+    background-color: #b89576; /* Tan from the palette */
+    color: #45413d; /* Light cream */
     text-align: center;
     padding: 1rem;
-    margin-top: 2rem;
+    margin-top: 0;
     position: relative;
     width: 100%;
 }

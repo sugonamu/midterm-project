@@ -6,12 +6,12 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="bg-gray-800 text-gray-400 p-6 font-sans min-h-screen flex justify-center items-center">
-    <div class="bg-[#eceada] p-10 rounded-2xl max-w-4xl w-full mx-auto mt-10 flex flex-col md:flex-row gap-8">
+<div class="bg-[#EEE8D8] text-gray-800 p-6 font-['Inter'] min-h-screen flex justify-center items-center"> 
+    <div class="bg-[#E3CDB6] p-10 rounded-2xl max-w-4xl w-full mx-auto mt-10 flex flex-col md:flex-row gap-8">
         
         <!-- Form Section -->
         <div class="md:w-1/2 w-full">
-            <h1 class="text-3xl font-semibold text-[#cba87e] mb-6">Update Profile</h1>
+            <h1 class="text-3xl font-bold text-[#D4AA7D] mb-6">Update Profile</h1>
 
             <!-- Django message display -->
             {% if messages %}
@@ -27,7 +27,7 @@
 
                 <div class="mb-5">
                     <label class="block font-semibold text-gray-600 mb-2">{{ u_form.username.label_tag }}</label>
-                    {{ u_form.username|add_class:"w-full p-3 rounded-lg bg-[#35393F] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cba87e]" }}
+                    {{ u_form.username|add_class:"w-full p-3 rounded-lg bg-[#D8CFC6] text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D4AA7D]" }}
                     {% if u_form.username.errors %}
                         <div class="text-red-500 text-sm mt-1">{{ u_form.username.errors }}</div>
                     {% endif %}
@@ -35,37 +35,37 @@
 
                 <div class="mb-5">
                     <label for="first_name" class="block font-semibold text-gray-600 mb-2">{{ u_form.first_name.label_tag }}</label>
-                    {{ u_form.first_name|add_class:"w-full p-3 rounded-lg bg-[#35393F] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cba87e]" }}
+                    {{ u_form.first_name|add_class:"w-full p-3 rounded-lg bg-[#D8CFC6] text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D4AA7D]" }}
                 </div>
 
                 <div class="mb-5">
                     <label for="last_name" class="block font-semibold text-gray-600 mb-2">{{ u_form.last_name.label_tag }}</label>
-                    {{ u_form.last_name|add_class:"w-full p-3 rounded-lg bg-[#35393F] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cba87e]" }}
+                    {{ u_form.last_name|add_class:"w-full p-3 rounded-lg bg-[#D8CFC6] text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D4AA7D]" }}
                 </div>
 
                 <div class="mb-5">
                     <label for="email" class="block font-semibold text-gray-600 mb-2">{{ u_form.email.label_tag }}</label>
-                    {{ u_form.email|add_class:"w-full p-3 rounded-lg bg-[#35393F] text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cba87e]" }}
+                    {{ u_form.email|add_class:"w-full p-3 rounded-lg bg-[#D8CFC6] text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D4AA7D]" }}
                 </div>
 
                 <div class="mb-5">
                     <label for="profile-picture" class="block font-semibold text-gray-600 mb-2">Change Avatar</label>
-                    <input type="file" name="image" id="file-upload" accept="image/*" class="w-full p-3 rounded-lg bg-[#35393F] text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#5865F2] file:text-white hover:file:bg-[#cba87e]">
+                    <input type="file" name="image" id="file-upload" accept="image/*" class="w-full p-3 rounded-lg bg-[#D8CFC6] text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#5865F2] file:text-white hover:file:bg-[#D4AA7D]">
                 </div>
 
-                <button type="submit" class="w-full bg-[#5865F2] hover:bg-[#cba87e] text-white py-3 px-6 rounded-lg font-semibold mt-4 transition-all">Update Profile</button>
+                <button type="submit" class="w-full bg-[#b89576] hover:bg-[#D4AA7D] text-white py-3 px-6 rounded-lg font-semibold mt-4 transition-all">Update Profile</button>
             </form>
         </div>
 
         <!-- Profile Preview Section -->
-        <div class="md:w-1/2 w-full bg-[#35393F] p-8 rounded-xl text-center shadow-lg">
-            <h2 class="text-2xl font-semibold text-[#cba87e] mb-4">Preview</h2>
+        <div class="md:w-1/2 w-full bg-[#D8CFC6] p-8 rounded-xl text-center shadow-lg">
+            <h2 class="text-2xl font-bold text-[#D4AA7D] mb-4">Preview</h2>
 
-            <img src="{{ profile.user.profile.image.url }}" alt="Profile Picture" class="w-36 h-36 rounded-full mx-auto mb-4 border-4 border-[#d4d4c6] shadow-lg object-cover">
+            <img src="{{ profile.user.profile.image.url }}" alt="Profile Picture" class="w-36 h-36 rounded-full mx-auto mb-4 border-4 border-[#E3CDB6] shadow-lg object-cover">
 
-            <p class="text-xl font-medium text-gray-300 mb-1">{{ profile.user.username }}</p>
-            <p class="text-lg text-gray-400 mb-1">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
-            <p class="text-sm text-gray-500">{{ profile.user.email }}</p>
+            <p class="text-xl font-medium text-gray-800 mb-1">{{ profile.user.username }}</p>
+            <p class="text-lg text-gray-700 mb-1">{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+            <p class="text-sm text-gray-600">{{ profile.user.email }}</p>
         </div>
     </div>
 </div>
