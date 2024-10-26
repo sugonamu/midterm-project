@@ -7,23 +7,23 @@
     <!-- Include the Navbar -->
     {% include 'navbar.html' %}
 
-    <!-- Search Bar -->
-    <div class="search-container">
+    <!-- Search Bar with Sort By -->
+    <div class="search-sort-container">
         <div class="search-box">
             <form method="GET" action="{% url 'booking:hotel_search' %}">
                 <input type="text" name="q" placeholder="City, hotel, place to go" value="{{ request.GET.q }}">
                 <button type="submit">Search</button>
             </form>
         </div>
-    </div>
 
-    <!-- Sort By Dropdown -->
-    <div class="sort-container">
-        <label for="sort">Sort by Price:</label>
-        <select id="sort" onchange="location = this.value;">
-            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
-            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
-        </select>
+        <!-- Sort By Dropdown -->
+        <div class="sort-container">
+            <label for="sort">Sort by Price:</label>
+            <select id="sort" onchange="location = this.value;">
+                <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
+                <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
+            </select>
+        </div>
     </div>
 
     <!-- Hotel Preview Section -->
@@ -53,15 +53,15 @@
             background-color: #F5F3E6; /* Light Cream */
         }
 
-        /* Search Bar */
-        .search-container {
+        /* Search Bar and Sort By */
+        .search-sort-container {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 50px 0;
             background-color: #E7D9C7; /* Soft Beige */
-            background-size: cover;
-            background-position: center;
+            gap: 20px; /* Space between search bar and sorting */
+            width: 100%; /* Full width container */
         }
 
         .search-box {
@@ -72,14 +72,15 @@
             padding: 15px;
             border-radius: 50px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
-            width: 50%;
+            width: 90%; /* Wider search box */
+            max-width: 1200px; /* Maximum width to control the expansion on large screens */
         }
 
         .search-box input {
             border: none;
             padding: 10px;
             font-size: 16px;
-            width: 80%;
+            width: 85%;
             border-radius: 50px 0 0 50px;
             outline: none;
         }
@@ -97,8 +98,28 @@
 
         /* Sort By Dropdown */
         .sort-container {
-            text-align: center;
-            margin: 20px;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-container select {
+            padding: 5px 10px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            font-size: 16px;
+            color: #997A57; /* Rich Tan */
+        }
+
+        .sort-container label {
+            font-size: 16px;
+            color: #997A57; /* Rich Tan */
         }
 
         /* Hotel Preview Grid */
