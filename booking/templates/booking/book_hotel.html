@@ -1,11 +1,57 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ hotel.Hotel }} - Book Now</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+{% block content %}
+    {% include 'navbar.html' %}  <!-- Include the navbar -->
+
+    <div class="container">
+        <!-- Hotel Details -->
+        <div class="hotel-details">
+            <!-- Hotel Image -->
+            <div class="hotel-image">
+                <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
+            </div>
+
+            <!-- Hotel Info -->
+            <div class="hotel-info">
+                <h1>{{ hotel.Hotel }}</h1>
+
+                <!-- Amenities -->
+                <div class="amenities">
+                    <strong>Amenities:</strong>
+                    {% for amenity in amenities_list %}
+                        <span>{{ amenity }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Price -->
+                <p class="price">Price: Rp {{ hotel.Price }}</p>
+
+                <!-- Payment Button -->
+                <a href="#" class="payment-button">Proceed to Payment</a>
+            </div>
+        </div>
+
+        <!-- Related Hotels Section -->
+        <div class="related-hotels">
+            <h2>Related Hotels Nearby</h2>
+            <div class="related-hotels-container">
+                {% for related_hotel in related_hotels %}
+                    <div class="related-hotel">
+                        <img src="{{ related_hotel.Image_URL }}" alt="Image of {{ related_hotel.Hotel }}">
+                        <div class="related-hotel-content">
+                            <h3>{{ related_hotel.Hotel }}</h3>
+                            <p class="price">Price: {{ related_hotel.Price }}</p>
+                            <a href="{% url 'booking:book_hotel' related_hotel.id %}" class="payment-button">Book Now</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -151,58 +197,4 @@
             margin-top: 50px;
         }
     </style>
-</head>
-<body>
-
-    <div class="container">
-        <!-- Hotel Details -->
-        <div class="hotel-details">
-            <!-- Hotel Image -->
-            <div class="hotel-image">
-                <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
-            </div>
-
-            <!-- Hotel Info -->
-            <div class="hotel-info">
-                <h1>{{ hotel.Hotel }}</h1>
-
-                <!-- Amenities -->
-                <div class="amenities">
-                    <strong>Amenities:</strong>
-                    {% for amenity in amenities_list %}
-                        <span>{{ amenity }}</span>
-                    {% endfor %}
-                </div>
-
-                <!-- Price -->
-                <p class="price">Price: Rp {{ hotel.Price }}</p>
-
-                <!-- Payment Button -->
-                <a href="#" class="payment-button">Proceed to Payment</a>
-            </div>
-        </div>
-
-        <!-- Related Hotels Section -->
-        <div class="related-hotels">
-            <h2>Related Hotels Nearby</h2>
-            <div class="related-hotels-container">
-                {% for related_hotel in related_hotels %}
-                    <div class="related-hotel">
-                        <img src="{{ related_hotel.Image_URL }}" alt="Image of {{ related_hotel.Hotel }}">
-                        <div class="related-hotel-content">
-                            <h3>{{ related_hotel.Hotel }}</h3>
-                            <p class="price">Price: Rp {{ related_hotel.Price }}</p>
-                            <a href="{% url 'booking:book_hotel' related_hotel.id %}" class="payment-button">Book Now</a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2024 Your Booking Site. All Rights Reserved.</p>
-    </footer>
-
-</body>
-</html>
+{% endblock %}

@@ -1,21 +1,62 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <div class="max-w-md w-full bg-white rounded-lg shadow-md overflow-hidden">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold text-center mb-6">Login</h1>
-            <form method="POST">
-                {% csrf_token %}
-                {{ form.as_p|safe }}
-                <div class="text-center">
-                    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300">Login</button>
-                </div>
-            </form>
-            <p class="text-center mt-4 text-gray-600">Don't have an account? <a href="{% url 'main:register' %}" class="text-blue-600 hover:underline">Register here</a>.</p>
+<div class="flex items-center justify-center min-h-screen bg-eggshell-800">
+    <!-- Left side: Logo and description -->
+    <div class="w-1/2 text-center p-8">
+        <h1 class="text-9xl font-bold text-buff-500 mb-4">
+            Bali<br>
+            <span class="bg-image">N</span><br>
+            Chill
+        </h1>
+    </div>
+    <!-- Right side: Login form -->
+    <div class="w-full max-w-sm bg-white p-6 rounded-lg shadow-lg">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Email address or phone number" class="w-full px-4 py-2 border border-dun-400 rounded-lg focus:outline-none focus:border-dun-600" />
+            <input type="password" name="password" placeholder="Password" class="w-full px-4 py-2 border border-dun-400 rounded-lg focus:outline-none focus:border-dun-600" />
+            
+            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+                Log in
+            </button>
+
+            <div class="text-center mt-2">
+                <a href="#" class="text-blue-600 hover:underline">Forgotten password?</a>
+            </div>
+        </form>
+
+        <hr class="my-6 border-t border-dun-400">
+
+        <div class="text-center">
+            <a href="{% url 'main:register' %}" class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 inline-block">
+                Create new account
+            </a>
         </div>
     </div>
 </div>
+
+<!-- Optional: Create a Page link -->
+<div class="text-center mt-4 text-sm text-dun-500">
+    <a href="#" class="hover:underline">Create a Page</a>
+</div>
+
+
+<style>
+    .bg-image {
+        display: inline-block; /* Make the span act like a block for dimensions */
+        background-image: url('{% static "image/logo.png" %}'); /* Replace with your image path */
+        background-size: cover; /* Cover the entire area */
+        background-position: center; /* Center the image */
+        color: #4a4a4a; /* Make the letter 'N' transparent */
+        width: 100px; /* Set width as needed */
+        height: 100px; /* Set height as needed */
+        text-align: center; /* Center text in the span */
+        line-height: 100px; /* Center the letter vertically */
+        font-size: 9rem; /* Match the font size to the h1 text size */
+    }
+</style>
 {% endblock %}

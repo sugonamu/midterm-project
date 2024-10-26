@@ -25,6 +25,8 @@ urlpatterns = [
     path('',include('booking.urls')),
     path('', include('main.urls')),  # Include main app URLs
     path('users/', include('users.urls')),  # Include user app URLs
+    path('users/', include(('users.urls', 'users'), namespace='users')),
+
 ]
 
 if settings.DEBUG:

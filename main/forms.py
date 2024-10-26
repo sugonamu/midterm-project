@@ -1,6 +1,15 @@
 from django import forms
 from .models import Property
 
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'placeholder': 'Username', 'class': 'input-class'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'input-class'})
+    )
+    
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
