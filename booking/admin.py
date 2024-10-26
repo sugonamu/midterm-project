@@ -1,7 +1,6 @@
 from django.contrib import admin
-from .models import Category,Hotel
+from .models import Hotel
 
 admin.site.register(Hotel)
-admin.site.register(Category)
 
 
