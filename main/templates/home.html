@@ -10,7 +10,35 @@
     <h1 class="text-3xl font-bold mb-4">Welcome to Airbnb Bali</h1>
     
     <section class="featured-properties text-center mb-6">
-        <h2 class="font-bold text-2xl mb-4">Featured Properties</h2>
+      <h2 class="font-bold text-2xl mb-4">Featured Properties</h2>
+  
+      <!-- Sort Properties Section -->
+      <div class="flex flex-col items-center mb-6">
+          <div class="relative mb-4">
+              <button id="sortToggleBtn" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm px-4 py-2 transition duration-300">
+                  Sort Properties
+              </button>
+              <div id="sortOptions" class="absolute left-0 mt-2 w-48 bg-white border rounded-md hidden shadow-lg">
+                  <button id="sortCheapest" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Cheapest First</button>
+                  <button id="sortExpensive" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Most Expensive First</button>
+              </div>
+          </div>
+      </div>
+  
+      {% if properties %}
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="property-container">
+              {% for property in properties %}
+                  {% include 'property_card.html' with property=property %}
+              {% endfor %}
+          </div>
+      {% else %}
+          <div class="flex flex-col items-center justify-center mt-4">
+              <p class="text-gray-600 mb-2">No properties available.</p>
+              <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
+          </div>
+      {% endif %}
+  </section>
+  
         
         {% if properties %}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="property-container">
@@ -156,7 +184,49 @@
             })
             .catch(error => console.error('Error fetching properties:', error));
         }
+
+    }); 
+    document.addEventListener('DOMContentLoaded', function() {
+    const sortToggleBtn = document.getElementById('sortToggleBtn');
+    const sortOptions = document.getElementById('sortOptions');
+    const sortCheapest = document.getElementById('sortCheapest');
+    const sortExpensive = document.getElementById('sortExpensive');
+
+    // Toggle sort options visibility
+    sortToggleBtn.addEventListener('click', () => {
+        sortOptions.classList.toggle('hidden');
     });
+
+    // Sort by Cheapest First
+    sortCheapest.addEventListener('click', () => {
+        sortProperties('cheapest');
+    });
+
+    // Sort by Most Expensive First
+    sortExpensive.addEventListener('click', () => {
+        sortProperties('expensive');
+    });
+
+    function sortProperties(order) {
+        const propertyContainer = document.getElementById('property-container');
+        const properties = Array.from(propertyContainer.children);
+
+        properties.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('.price-class-selector').textContent.replace(/[^0-9.-]+/g, ""));
+            const priceB = parseFloat(b.querySelector('.price-class-selector').textContent.replace(/[^0-9.-]+/g, ""));
+
+            return order === 'cheapest' ? priceA - priceB : priceB - priceA;
+        });
+
+        propertyContainer.innerHTML = '';
+        properties.forEach(property => {
+            propertyContainer.appendChild(property);
+        });
+
+        sortOptions.classList.add('hidden'); // Hide options after sorting
+    }
+});
+
 </script>
 
 {% endblock %}
