@@ -1,8 +1,9 @@
 {% load static %}
+
 <nav class="bg-white shadow-lg">
     <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
         <a href="{% url 'booking:hotel_search' %}" class="flex items-center">
-            <img src="{% static 'image/logo.png' %}" class="mr-3 h-6 sm:h-9" alt="App Logo" />
+            <img src="{% static 'image/logo.png' %}" class="mr-3 h-10 sm:h-12" alt="App Logo" />  <!-- Increased heights -->
             <span class="self-center text-xl font-semibold text-gray-800">Bali N Chill</span>
         </a>
         <div class="flex items-center lg:order-2">
