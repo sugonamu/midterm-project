@@ -118,8 +118,7 @@
           </div>
         </div>
 
-        <!-- Payment Method Selection -->
-        <h4>Select Payment Method</h4>
+        <h4>Payment Section</h4>
 
         <div
           class="payment-option"
@@ -132,15 +131,6 @@
             src="https://img.icons8.com/ios-filled/50/000000/bank-card-back-side.png"
             alt="Credit Card Icon"
           />
-        </div>
-
-        <div
-          class="payment-option"
-          id="virtual_account_option"
-          onclick="toggleForm('virtual_account')"
-        >
-          <input type="radio" name="payment_method" value="VIRTUAL_ACCOUNT" />
-          <label>Virtual Account</label>
         </div>
 
         <!-- Credit Card Form -->
@@ -205,20 +195,26 @@
           </div>
         </div>
 
-        <!-- Virtual Account Form -->
-        <div id="virtual_account_form">
-          <h4>Virtual Account</h4>
-          <p>Select your bank to proceed with the payment.</p>
+
+          <!-- Price Details Section -->
+      <div class="price-details">
+        <h5>Price details</h5>
+        <div class="price-item">
+          <span>Room Price</span>
+          <span>Rp 663.843</span>
         </div>
-
-        <button type="submit" class="btn btn-primary">Submit Payment</button>
-      </form>
-
-      <!-- Success Message Box -->
-      <div id="success_message" class="alert alert-success" role="alert">
-        Payment was successful!
+        <hr />
+        <div class="total-price">
+          <span>Total Price</span>
+          <span>Rp 663.843</span>
+        </div>
       </div>
-    </div>
+
+      <button type="submit" class="btn btn-primary">Submit Payment</button>
+    </form>
+
+
+    
 
     <script>
       function toggleForm(selectedOption) {
