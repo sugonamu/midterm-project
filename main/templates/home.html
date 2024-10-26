@@ -5,76 +5,158 @@
 {% block content %}
 {% include 'navbar.html' %}
 {% load static %}
-<div class="home-banner bg-cover bg-center h-64 flex items-center justify-center text-center text-white" style="background-image: url('{% static 'logo.png' %}')">
-    <div class="bg-black bg-opacity-50 p-6 rounded-md">
-        <h1 class="text-4xl font-bold mb-2">Welcome to Airbnb Bali</h1>
-        <p class="text-lg">Find your perfect stay in the tropical paradise of Bali!</p>
-    </div>
-</div>
 
-<!-- Sort Button Section -->
-<div class="sort-section text-center mt-6">
-    <button id="sort-btn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200" onclick="toggleSortOptions()">Sort</button>
-    <div id="sort-options" style="display: none;" class="mt-2">
-        <a href="{% url 'main:home' %}?sort=cheapest">
-            <button class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200">Cheapest</button>
-        </a>
-        <a href="{% url 'main:home' %}?sort=most_expensive">
-            <button class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200">Most Expensive</button>
-        </a>
+<div class="home-container flex flex-col items-center p-6 bg-gray-100 min-h-screen">
+    <h1 class="text-3xl font-bold mb-4">Welcome to Airbnb Bali</h1>
+    
+    <section class="featured-properties text-center mb-6">
+        <h2 class="font-bold text-2xl mb-4">Featured Properties</h2>
+        
+        {% if properties %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="property-container">
+                {% for property in properties %}
+                    {% include 'property_card.html' with property=property %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="flex flex-col items-center justify-center mt-4">
+                <p class="text-gray-600 mb-2">No properties available.</p>
+                <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="my-properties text-center mb-6">
+        <h2 class="font-bold text-2xl mb-4">My Properties</h2>
+        
+        {% if user_properties %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for property in user_properties %}
+                    {% include 'property_card.html' with property=property %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="flex flex-col items-center justify-center mt-4">
+                <p class="text-gray-600 mb-2">You have no properties listed.</p>
+                <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
+            </div>
+        {% endif %}
+    </section>
+
+    <div class="flex space-x-4 mb-4">
+        <button id="addPropertyBtn" class="bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm px-4 py-2 transition duration-300">
+            Add New Property
+        </button>
     </div>
+
+    <div id="addPropertyModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Add New Property</h2>
+            <form id="addPropertyForm">
+                <div class="mb-4">
+                    <label for="title" class="block text-sm font-semibold">Property Title</label>
+                    <input type="text" id="title" name="title" class="w-full p-2 border rounded-md" required>
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-semibold">Description</label>
+                    <textarea id="description" name="description" class="w-full p-2 border rounded-md" required></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="price_per_night" class="block text-sm font-semibold">Price per Night</label>
+                    <input type="number" id="price_per_night" name="price_per_night" class="w-full p-2 border rounded-md" required>
+                </div>
+                <div class="mb-4">
+                    <label for="address" class="block text-sm font-semibold">Address</label>
+                    <input type="text" id="address" name="address" class="w-full p-2 border rounded-md" required>
+                </div>
+                <div class="mb-4">
+                    <label for="number_of_guests" class="block text-sm font-semibold">Number of Guests</label>
+                    <input type="number" id="number_of_guests" name="number_of_guests" class="w-full p-2 border rounded-md" required>
+                </div>
+                <div class="mb-4">
+                    <label for="number_of_bedrooms" class="block text-sm font-semibold">Number of Bedrooms</label>
+                    <input type="number" id="number_of_bedrooms" name="number_of_bedrooms" class="w-full p-2 border rounded-md" required>
+                </div>
+                <div class="mb-4">
+                    <label for="number_of_bathrooms" class="block text-sm font-semibold">Number of Bathrooms</label>
+                    <input type="number" id="number_of_bathrooms" name="number_of_bathrooms" class="w-full p-2 border rounded-md" required>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2">
+                        Add Property
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-white-100 p-4 mt-6 w-full">
+        <h5 class="text-sm text-gray-500 text-center">Last login session: {{ last_login }}</h5>
+    </footer>
 </div>
 
 <script>
-function toggleSortOptions() {
-    var sortOptions = document.getElementById("sort-options");
-    if (sortOptions.style.display === "none") {
-        sortOptions.style.display = "block";
-    } else {
-        sortOptions.style.display = "none";
-    }
-}
+    document.addEventListener('DOMContentLoaded', function() {
+        const addPropertyBtn = document.getElementById('addPropertyBtn');
+        const addPropertyModal = document.getElementById('addPropertyModal');
+        const addPropertyForm = document.getElementById('addPropertyForm');
+
+        addPropertyBtn.addEventListener('click', () => {
+            addPropertyModal.classList.remove('hidden');
+        });
+
+        addPropertyForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(addPropertyForm);
+
+            fetch('/add_property/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addPropertyForm.reset();
+                    addPropertyModal.classList.add('hidden');
+                    loadProperties();
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+
+        function loadProperties() {
+            fetch('/get-properties/', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                const propertyContainer = document.getElementById('property-container');
+                propertyContainer.innerHTML = '';
+                data.properties.forEach(property => {
+                    const propertyCard = `
+                        <div class="property-card transition-transform duration-300 hover:scale-105">
+                            <h3 class="font-bold text-xl">${property.title}</h3>
+                            <p>${property.description}</p>
+                            <p>Price: $${property.price_per_night}/night</p>
+                        </div>`;
+                    propertyContainer.insertAdjacentHTML('beforeend', propertyCard);
+                });
+            })
+            .catch(error => console.error('Error fetching properties:', error));
+        }
+    }); 
 </script>
 
-<section class="featured-properties text-center mt-8">
-    <h2 class="font-bold text-3xl mb-4">Featured Properties</h2>
-    
-    {% if properties %}
-        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for property in properties %}
-            <li>
-                {% include 'property_card.html' with property=property %}
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <div class="flex flex-col items-center justify-center mt-4">
-            <p class="text-gray-600 mb-2">No properties available.</p>
-            <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
-        </div>
-    {% endif %}
-</section>
-
-<section class="my-properties text-center mt-8">
-    <h2 class="font-bold text-3xl mb-4">My Properties</h2>
-    
-    {% if user_properties %}
-        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for property in user_properties %}
-            <li>
-                {% include 'property_card.html' with property=property %}
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <div class="flex flex-col items-center justify-center mt-4">
-            <p class="text-gray-600 mb-2">You have no properties listed.</p>
-            <img src="{% static 'image/very-sad.gif' %}" alt="Sad face" class="w-32 h-32 mb-4 mx-auto"/>
-        </div>
-    {% endif %}
-    
-    <a href="{% url 'main:add_property' %}" class="add-property-button bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200 mb-4">Add Property</a>
-</section>
-
-<br><br>
 {% endblock %}

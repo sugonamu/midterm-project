@@ -34,23 +34,13 @@ def host_dashboard(request):
 def home(request):
     if not request.user.is_authenticated:
         return redirect('main:login')
-
-    sort_option = request.GET.get('sort', 'random') 
-    if sort_option == 'cheapest':
-        properties = Property.objects.order_by('price_per_night')  
-    elif sort_option == 'most_expensive':
-        properties = Property.objects.order_by('-price_per_night') 
-    else:
-        properties = Property.objects.order_by('?')  
-
-    user_properties = request.user.properties.all()
-    
+    properties = Property.objects.order_by('?')[:6]
+    user_properties = request.user.properties.all() if request.user.userprofile.role == 'host' else []
     return render(request, 'home.html', {
         'properties': properties,
         'user_properties': user_properties,
         'last_login': request.COOKIES.get('last_login')
     })
-
 
 def login_view(request):
     if request.method == 'POST':
