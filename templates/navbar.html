@@ -1,13 +1,13 @@
 {% load static %}
-<nav class="bg-blue-600 shadow-lg">
+<nav class="bg-white shadow-lg">
     <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
         <a href="{% url 'booking:hotel_search' %}" class="flex items-center">
             <img src="{% static 'image/logo.png' %}" class="mr-3 h-6 sm:h-9" alt="App Logo" />
-            <span class="self-center text-xl font-semibold text-white">Airbnb Bali</span>
+            <span class="self-center text-xl font-semibold text-gray-800">Bali N Chill</span>
         </a>
         <div class="flex items-center lg:order-2">
             {% if user.is_authenticated %}
-                <span class="text-white mr-4">Welcome, {{ user.username }}</span>
+                <span class="text-gray-800 mr-4">Welcome, {{ user.username }}</span>
                 <a href="{% url 'main:logout' %}" class="bg-red-500 text-white rounded-lg text-sm px-4 lg:px-5 py-2.5">Logout</a>
             {% else %}
                 <a href="{% url 'main:login' %}" class="bg-blue-800 text-white rounded-lg text-sm px-4 lg:px-5 py-2.5">Login</a>
@@ -20,13 +20,13 @@
                     <a href="{% url 'booking:hotel_search' %}" class="block py-2 pr-4 pl-3 text-gray-300 hover:text-white">Home</a>
                 </li>
                 <li>
-                    <a href="{% url 'main:property_list' %}" class="block py-2 pr-4 pl-3 text-gray-300 hover:text-white">All Properties</a>
+                    <a href="{% url 'main:property_list' %}" class="block py-2 pr-4 pl-3 text-gray-600 hover:text-blue-600">All Properties</a>
                 </li>
                 <li>
-                    <a href="{% url 'main:host_dashboard' %}" class="block py-2 pr-4 pl-3 text-gray-300 hover:text-white">My Listings</a>
+                    <a href="{% url 'main:host_dashboard' %}" class="block py-2 pr-4 pl-3 text-gray-600 hover:text-blue-600">My Listings</a>
                 </li>        
                 <li>
-                    <a href="{% url 'main:error' %}" class="block py-2 pr-4 pl-3 text-gray-300 hover:text-white">Contact</a>
+                    <a href="{% url 'main:error' %}" class="block py-2 pr-4 pl-3 text-gray-600 hover:text-blue-600">Contact</a>
                 </li>
             </ul>
         </div>
