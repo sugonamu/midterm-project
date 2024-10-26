@@ -1,0 +1,132 @@
+
+/* Global styles for body, text, and background */
+body {
+    font-family: 'Inter', sans-serif; /* Tailwind default font */
+    background-color: #f9f9f9; /* Light background for contrast */
+    color: #333; /* Default text color */
+    margin: 0;
+    padding: 0;
+}
+
+/* Global link styling */
+a {
+    text-decoration: none;
+    color: #e2e8f0; /* Tailwind's gray-100 for consistency */
+}
+
+a:hover {
+    color: #ffffff; /* White for hover effect */
+}
+
+/* Navbar custom styles */
+.navbar {
+    background-color: #007BFF; /* Blue background for navbar */
+    color: #fff; /* Text color for navbar */
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.navbar .nav-link {
+    color: #e2e8f0; /* Tailwind's gray-100 */
+    margin-left: 1rem;
+    font-size: 1rem;
+}
+
+.navbar .nav-link:hover {
+    color: #ffffff; /* White for hover effect */
+}
+
+/* Custom button styles */
+button {
+    background-color: #007BFF; /* Tailwind's blue-600 */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue for hover */
+}
+
+/* Card styles for properties */
+.property-card {
+    background-color: white; /* White background for product cards */
+    border: 1px solid #e2e8f0; /* Tailwind's gray-200 */
+    padding: 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s; /* Smooth scale on hover */
+    width: 100%; /* Make the card take full width of the parent */
+    max-width: 100%; /* Prevent it from exceeding the container */
+}
+
+.property-card:hover {
+    transform: scale(1.05); /* Slightly enlarge card on hover */
+}
+
+.property-card h3 {
+    font-size: 1.25rem; /* Larger font size for property titles */
+    color: #2d3748; /* Tailwind's gray-800 */
+}
+
+.property-card p {
+    color: #4a5568; /* Tailwind's gray-700 */
+    font-size: 1rem;
+}
+
+.property-card img {
+    max-width: 100%; /* Responsive image */
+    border-radius: 0.375rem; /* Rounded corners */
+    margin-top: 0.5rem;
+}
+
+/* Footer styles */
+.footer {
+    background-color: #2d3748; /* Tailwind's gray-800 */
+    color: #e2e8f0; /* Tailwind's gray-100 */
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    position: relative; /* Changed to relative for better flow */
+    width: 100%;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack navbar items vertically on small screens */
+        align-items: flex-start;
+    }
+
+    .navbar .nav-link {
+        margin-left: 0; /* Remove left margin on small screens */
+        margin-bottom: 0.5rem; /* Spacing between links */
+    }
+
+    .property-card {
+        padding: 0.75rem; /* Adjust padding for smaller screens */
+    }
+}
+
+/* Shine animation */
+@keyframes shine {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: 200px 0;
+    }
+}
+
+.animate-shine {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    background-size: 200px 100%;
+    animation: shine 1.5s infinite;
+}

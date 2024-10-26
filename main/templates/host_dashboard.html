@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Host Dashboard{% endblock %}
+
+{% block content %}
+{% include 'navbar.html' %} 
+
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Host Dashboard</h1>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Your Properties and Bookings</h2>
+
+        {% if properties %}
+            {% for property in properties %}
+                <div class="border-b pb-4 mb-4">
+                    <h3 class="text-xl font-bold">{{ property.title }}</h3>
+                    <p>{{ property.description }}</p>
+                    <p><strong>Price per night:</strong> ${{ property.price_per_night }}</p>
+                    <p><strong>Address:</strong> {{ property.address }}</p>
+
+                    <h4 class="text-lg font-semibold mt-4">Bookings:</h4>
+                    {% if property.bookings.all %}
+                        <ul class="list-disc ml-6">
+                            {% for booking in property.bookings.all %}
+                                <li class="mt-2">
+                                    <p><strong>Guest:</strong> {{ booking.guest.username }}</p>
+                                    <p><strong>Check-in:</strong> {{ booking.check_in }}</p>
+                                    <p><strong>Check-out:</strong> {{ booking.check_out }}</p>
+                                    <p><strong>Booking Date:</strong> {{ booking.created_at }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No bookings yet for this property.</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>You have no properties listed yet.</p>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'main:add_property' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6 inline-block">
+        Add New Property
+    </a>
+</div> 
+{% endblock %}
+
+    <!--=<div class="flex justify-between p-3 border-t border-gray-200"> 
+        <a href="{% url 'main:edit_property' property.id %}" class="bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm px-3 py-1.5 transition duration-300">
+            Edit
+        </a>
+        <a href="{% url 'main:delete_property' property.id %}" class="bg-red-400 hover:bg-red-500 text-white rounded-lg text-sm px-3 py-1.5 transition duration-300">
+            Delete
+        </a>
+    </div>

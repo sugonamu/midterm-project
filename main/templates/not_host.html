@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Not a Host{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">Access Denied</h1>
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">You are not a host.</h2>
+        <p class="mb-4">It looks like you are trying to access a host-only feature, but you are not registered as a host. Please register a new account to become a host.</p>
+        <a href="{% url 'main:register' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Register as a Host
+        </a>
+    </div>
+</div>
+{% endblock %}

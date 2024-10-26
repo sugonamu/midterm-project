@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        :root {
+            --grain-brown: #e1cab2;
+            --tan: #cba87e;
+            --wafer: #dcccc2;
+            --spring-wood: #fafaf6;
+            --celeste: #d4d4c6;
+            --white-rock: #eceada;
+            --wafer-alt: #dfd5c6;
+            --westar: #e1dad5;
+            --yuma: #ccbc94;
+            --celeste-alt: #ccccc4;
+            --dark-bg: #2C2F33; /* Dark background color similar to the screenshot */
+            --button-blue: #5865F2; /* Button color similar to the image */
+            --input-bg: #35393F; /* Input field background */
+            --input-text: #B9BBBE; /* Input field text color */
+            --input-placeholder: #72767D; /* Input placeholder color */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--input-text);
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--tan);
+        }
+
+        .container {
+            background-color: var(--white-rock);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            margin: 40px auto;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-section {
+            width: 45%;
+        }
+
+        .profile-preview {
+            background-color: var(--input-bg);
+            padding: 20px;
+            border-radius: 15px;
+            color: var(--input-text);
+            text-align: center;
+            width: 45%;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 20px;
+            border: 4px solid var(--celeste);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--input-placeholder);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            font-size: 1em;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--input-placeholder);
+        }
+
+        .btn {
+            background-color: var(--button-blue);
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            display: inline-block;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--tan);
+        }
+
+        .btn-inline {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        /* Profile preview area styling */
+        .profile-name {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        .status-button {
+            background-color: #4F545C;
+            border-radius: 5px;
+            color: var(--input-text);
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+
+        .status-button:hover {
+            background-color: #72767D;
+        }
+
+        .example-button {
+            background-color: var(--button-blue);
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            margin-top: 15px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Form Section -->
+        <div class="form-section">
+            <h1>Update Profile</h1>
+
+            {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    {{ u_form.username.label_tag }}
+                    {{ u_form.username }}
+                    {% if u_form.username.errors %}
+                        <div class="text-danger">{{ u_form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    {{ u_form.first_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    {{ u_form.last_name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    {{ u_form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-picture">Change Avatar</label>
+                    <input type="file" name="image" id="file-upload" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn">Update Profile</button>
+            </form>
+        </div>
+
+        <!-- Profile Preview Section -->
+        <div class="profile-preview">
+            <h2>Preview</h2>
+
+            <img src="{{ profile.user.profile.image.url }}" alt="Profile Picture" class="profile-picture">
+
+            <p class="profile-name">{{ profile.user.username }}</p>
+            <p>{{ profile.user.first_name }} {{ profile.user.last_name }}</p>   
+            <p>{{ profile.user.email }}</p>
+        </div>
+    </div>
+
+</body>
+</html>

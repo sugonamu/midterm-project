@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    {% block meta %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% endblock meta %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
+    <title>{% block title %}Airbnb in Bali{% endblock title %}</title>
+</head>
+<body class="flex flex-col min-h-screen">
+    <main class="flex-grow">
+        {% block content %}
+        <!-- Page content goes here -->
+        {% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-2 text-center">Why Choose Us?</h2>
+            <p class="text-center">Discover unique properties with top amenities for an unforgettable Bali experience. From beachfront villas to cozy retreats, we have something for everyone!</p>
+            <h5 class="text-sm text-gray-500 text-center">Last login session: {{ last_login }}</h5>
+        </div>
+    </footer>
+</body>
+</html>
