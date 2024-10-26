@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from .models import Transaction, PaymentProfile
 
+@login_required
 def payment_page(request):
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')

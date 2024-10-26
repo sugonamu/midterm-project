@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Rate Property</title>
+    <style>
+        .rating-list li {
+            float: right;
+            color: #ddd;
+            padding: 10px 5px;
+            cursor: pointer;
+        }
+
+        .rating-list li:hover,
+        .rating-list li:hover ~ li {
+            color: orange;
+        }
+
+        .rating-list {
+            display: inline-block;
+            list-style: none;
+            padding: 0;
+        }
+
+        .checked {
+            color: orange;
+        }
+
+        .review-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    
+    <div class="container" style="padding: 2em">
+        <h5>Rate the property: {{ property_instance.title }}</h5>
+        <p>{{ property_instance.description }}</p>
+        
+        <h5>Your Rating:</h5>
+        
+        <!-- Star Rating Input -->
+        <ul class="btn btn-light list-inline rating-list">
+            <li onclick="setRating(5)">
+                <i class="fa fa-star" id="star-5"></i></li>
+            <li onclick="setRating(4)">
+                <i class="fa fa-star" id="star-4"></i></li>
+            <li onclick="setRating(3)">
+                <i class="fa fa-star" id="star-3"></i></li>
+            <li onclick="setRating(2)">
+                <i class="fa fa-star" id="star-2"></i></li>
+            <li onclick="setRating(1)">
+                <i class="fa fa-star" id="star-1"></i></li>
+        </ul>
+
+        <!-- Rating Form -->
+        <div class="review-section">
+            <form method="POST" action="{% url 'main:add_rating' property.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="rating" id="rating-input">
+                
+                <div class="form-group">
+                    <label for="review">Your Review:</label>
+                    <textarea class="form-control" id="review" name="review" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit Rating</button>
+                <a href="{% url 'main:home' %}" class="btn btn-secondary">Cancel</a>  <!-- Cancel Button -->
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedRating = 0;
+
+        // Function to set the rating
+        function setRating(rating) {
+            selectedRating = rating;
+            document.getElementById('rating-input').value = selectedRating;
+            
+            // Update star colors based on rating
+            for (let i = 1; i <= 5; i++) {
+                const star = document.getElementById('star-' + i);
+                if (i <= rating) {
+                    star.classList.add('checked');
+                } else {
+                    star.classList.remove('checked');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

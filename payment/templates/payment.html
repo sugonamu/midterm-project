@@ -1,141 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Payment Page</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    />
     <style>
-        /* Initially hide both forms */
-        #credit_card_form, #virtual_account_form {
-            display: none;
-            transition: all 0.5s ease;
-        }
+      /* Initially hide both forms */
+      #credit_card_form,
+      #virtual_account_form {
+        display: none;
+        transition: all 0.5s ease;
+      }
 
-        /* Add a class for smooth sliding */
-        .show {
-            display: block;
-        }
+      /* Payment Option Styling */
+      .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
 
-        /* Message Box Styling */
-        #success_message {
-            display: none;
-            margin-top: 20px;
-        }
+      .payment-option:hover {
+        background-color: #f9f9f9;
+      }
+
+      .payment-option input[type="radio"] {
+        display: none;
+      }
+
+      .payment-option label {
+        margin-left: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .payment-option img {
+        margin-left: auto;
+        height: 20px;
+      }
+
+      /* Selected State */
+      .payment-option.selected {
+        background-color: #f0f8ff;
+        border-color: #007bff;
+      }
+
+      /* Success Message Styling */
+      #success_message {
+        display: none;
+        margin-top: 20px;
+      }
+
+      /* Error messages for validation */
+      .error-message {
+        color: red;
+        font-size: 0.9em;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container mt-5">
-        <h2>Select Payment Method</h2>
-        <form id="payment_form" method="POST" action="">
-            {% csrf_token %}
-            <!-- Payment Method Selection -->
-            <div class="mb-3">
-                <label class="form-label">Payment Method</label><br>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="payment_method" id="credit_card_option" value="CREDIT_CARD" checked>
-                    <label class="form-check-label" for="credit_card_option">Credit Card</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="payment_method" id="virtual_account_option" value="VIRTUAL_ACCOUNT">
-                    <label class="form-check-label" for="virtual_account_option">Virtual Account</label>
-                </div>
-            </div>
+      <h2>Select Payment Method</h2>
+      <form id="payment_form" method="POST" action="">
+        {% csrf_token %}
 
-            <!-- Credit Card Form -->
-            <div id="credit_card_form" class="show">
-                <h4>Credit Card Installment</h4>
-                <div class="mb-3">
-                    <label for="credit_card_number" class="form-label">Credit Card Number</label>
-                    <input type="text" class="form-control" id="credit_card_number" name="credit_card_number" placeholder="Credit Card Number">
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="valid_thru" class="form-label">Valid Thru</label>
-                        <input type="text" class="form-control" id="valid_thru" name="valid_thru" placeholder="MM/YY">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="cvv" class="form-label">CVV/CVN</label>
-                        <input type="text" class="form-control" id="cvv" name="cvv" placeholder="3-4 digits code">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="card_name" class="form-label">Name on Card</label>
-                    <input type="text" class="form-control" id="card_name" name="card_name" placeholder="Name as stated on card">
-                </div>
-            </div>
-
-            <!-- Virtual Account Form -->
-            <div id="virtual_account_form">
-                <h4>Virtual Account</h4>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="virtual_account_provider" id="va" value="Virtual_Account" checked>
-                    <label class="form-check-label" for="va">
-                        Virtual Account
-                    </label>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit Payment</button>
-        </form>
-
-        <!-- Success Message Box -->
-        <div id="success_message" class="alert alert-success" role="alert">
-            Payment was successful!
+        <!-- Contact Details Section -->
+        <h4>Contact Details</h4>
+        <p>
+          Please fill in all fields correctly to ensure you receive the booking
+          confirmation voucher in your email.
+        </p>
+        <div class="mb-3">
+          <label for="full_name" class="form-label">Full Name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="full_name"
+            name="full_name"
+            required
+          />
+          <div class="error-message" id="full_name_error">
+            Please enter a value greater than or equal to 2 characters.
+          </div>
         </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
+            required
+          />
+          <div class="error-message" id="email_error">Invalid email.</div>
+        </div>
+        <div class="mb-3">
+          <label for="mobile_number" class="form-label">Mobile Number</label>
+          <div class="input-group">
+            <input
+              type="tel"
+              class="form-control"
+              id="mobile_number"
+              name="mobile_number"
+              required
+            />
+          </div>
+          <div class="error-message" id="mobile_number_error">
+            Please enter a value greater than or equal to 5 characters.
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <h4>Select Payment Method</h4>
+
+        <div
+          class="payment-option"
+          id="credit_card_option"
+          onclick="toggleForm('credit_card')"
+        >
+          <input type="radio" name="payment_method" value="CREDIT_CARD" />
+          <label>Credit Card Installment</label>
+          <img
+            src="https://img.icons8.com/ios-filled/50/000000/bank-card-back-side.png"
+            alt="Credit Card Icon"
+          />
+        </div>
+
+        <div
+          class="payment-option"
+          id="virtual_account_option"
+          onclick="toggleForm('virtual_account')"
+        >
+          <input type="radio" name="payment_method" value="VIRTUAL_ACCOUNT" />
+          <label>Virtual Account</label>
+        </div>
+
+        <!-- Credit Card Form -->
+        <div id="credit_card_form">
+          <h4>Credit Card Installment</h4>
+          <div class="mb-3">
+            <label for="credit_card_number" class="form-label"
+              >Credit Card Number</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="credit_card_number"
+              name="credit_card_number"
+              placeholder="Credit Card Number"
+              inputmode="numeric"
+              maxlength="16"
+            />
+            <div class="error-message" id="credit_card_error">
+              Credit card number must be exactly 16 digits.
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="valid_thru" class="form-label">Valid Thru</label>
+              <input
+                type="text"
+                class="form-control"
+                id="valid_thru"
+                name="valid_thru"
+                placeholder="MM/YY"
+                maxlength="5"
+              />
+              <div class="error-message" id="valid_thru_error">
+                Please enter a valid expiration date (MM/YY).
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="cvv" class="form-label">CVV/CVN</label>
+              <input
+                type="text"
+                class="form-control"
+                id="cvv"
+                name="cvv"
+                placeholder="3-4 digits code"
+                inputmode="numeric"
+              />
+              <div class="error-message" id="cvv_error">
+                CVV must be 3-4 digits and only numbers.
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="card_name" class="form-label">Name on Card</label>
+            <input
+              type="text"
+              class="form-control"
+              id="card_name"
+              name="card_name"
+              placeholder="Name as stated on card"
+            />
+          </div>
+        </div>
+
+        <!-- Virtual Account Form -->
+        <div id="virtual_account_form">
+          <h4>Virtual Account</h4>
+          <p>Select your bank to proceed with the payment.</p>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Payment</button>
+      </form>
+
+      <!-- Success Message Box -->
+      <div id="success_message" class="alert alert-success" role="alert">
+        Payment was successful!
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const creditCardOption = document.getElementById('credit_card_option');
-            const virtualAccountOption = document.getElementById('virtual_account_option');
-            const creditCardForm = document.getElementById('credit_card_form');
-            const virtualAccountForm = document.getElementById('virtual_account_form');
-            const paymentForm = document.getElementById('payment_form');
-            const successMessage = document.getElementById('success_message');
+      function toggleForm(selectedOption) {
+        const creditCardForm = document.getElementById("credit_card_form");
+        const virtualAccountForm = document.getElementById(
+          "virtual_account_form"
+        );
+        const creditCardOption = document.getElementById("credit_card_option");
+        const virtualAccountOption = document.getElementById(
+          "virtual_account_option"
+        );
 
-            // Show/Hide forms based on payment method selection
-            function slideDown(element) {
-                element.style.display = 'block';
-                setTimeout(() => {
-                    element.style.maxHeight = element.scrollHeight + 'px';
-                }, 10);
-            }
+        if (selectedOption === "credit_card") {
+          creditCardForm.style.display = "block";
+          virtualAccountForm.style.display = "none";
+          creditCardOption.classList.add("selected");
+          virtualAccountOption.classList.remove("selected");
+        } else if (selectedOption === "virtual_account") {
+          virtualAccountForm.style.display = "block";
+          creditCardForm.style.display = "none";
+          virtualAccountOption.classList.add("selected");
+          creditCardOption.classList.remove("selected");
+        }
+      }
 
-            function slideUp(element) {
-                element.style.maxHeight = '0';
-                setTimeout(() => {
-                    element.style.display = 'none';
-                }, 400); // match the CSS transition duration
-            }
+      document.addEventListener("DOMContentLoaded", function () {
+        const creditCardInput = document.getElementById("credit_card_number");
+        const creditCardError = document.getElementById("credit_card_error");
+        const validThruInput = document.getElementById("valid_thru");
+        const validThruError = document.getElementById("valid_thru_error");
+        const paymentForm = document.getElementById("payment_form");
 
-            creditCardOption.addEventListener('change', function () {
-                if (creditCardOption.checked) {
-                    slideUp(virtualAccountForm);
-                    slideDown(creditCardForm);
-                }
-            });
-
-            virtualAccountOption.addEventListener('change', function () {
-                if (virtualAccountOption.checked) {
-                    slideUp(creditCardForm);
-                    slideDown(virtualAccountForm);
-                }
-            });
-
-            // Handle form submission and show success message
-            paymentForm.addEventListener('submit', function (event) {
-                event.preventDefault(); // Prevent actual form submission for demonstration purposes
-
-                // Simulate a successful form submission by showing the success message
-                successMessage.style.display = 'block';
-
-                // Optionally, you can hide the form after showing the message
-                paymentForm.style.display = 'none';
-            });
+        // Ensure credit card input is numeric only
+        creditCardInput.addEventListener("input", function () {
+          creditCardInput.value = creditCardInput.value.replace(/\D/g, "");
         });
+
+        // Ensure valid thru input follows MM/YY format
+        validThruInput.addEventListener("input", function () {
+          let input = validThruInput.value.replace(/\D/g, ""); // Remove non-numeric characters
+          
+          // Add the slash for MM/YY format
+          if (input.length > 2) {
+            input = input.slice(0, 2) + "/" + input.slice(2);
+          }
+          validThruInput.value = input;
+        });
+
+        // Validate form on submission
+        paymentForm.addEventListener("submit", function (event) {
+          // Validate credit card number length
+          if (creditCardInput.value.length !== 16) {
+            event.preventDefault();
+            creditCardError.style.display = "block";
+          } else {
+            creditCardError.style.display = "none";
+          }
+
+          // Validate valid thru date format MM/YY and range
+          const validThruPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+          if (!validThruPattern.test(validThruInput.value)) {
+            event.preventDefault();
+            validThruError.style.display = "block";
+          } else {
+            validThruError.style.display = "none";
+          }
+        });
+      });
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>
