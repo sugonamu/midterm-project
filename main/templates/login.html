@@ -4,59 +4,104 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center min-h-screen bg-eggshell-800">
-    <!-- Left side: Logo and description -->
-    <div class="w-1/2 text-center p-8">
-        <h1 class="text-9xl font-bold text-buff-500 mb-4">
-            Bali<br>
-            <span class="bg-image">N</span><br>
-            Chill
-        </h1>
-    </div>
+<!-- Logo positioned in the top-left corner -->
+<div class="logo-container">
+    <img src="{% static 'image/logo.png' %}" alt="Logo" class="logo">
+</div>
+
+<div class="flex-container">
+    <!-- Left side: Bali N Chill text -->
+    <h1 class="text-9xl font-bold bali-text">
+        Bali<span class="larger-n">N</span>Chill
+    </h1>
+    
     <!-- Right side: Login form -->
-    <div class="w-full max-w-sm bg-white p-6 rounded-lg shadow-lg">
+    <div class="login-form-container">
         <form method="POST" class="space-y-4">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Email address or phone number" class="w-full px-4 py-2 border border-dun-400 rounded-lg focus:outline-none focus:border-dun-600" />
-            <input type="password" name="password" placeholder="Password" class="w-full px-4 py-2 border border-dun-400 rounded-lg focus:outline-none focus:border-dun-600" />
-            
-            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300">
-                Log in
-            </button>
-
-            <div class="text-center mt-2">
-                <a href="#" class="text-blue-600 hover:underline">Forgotten password?</a>
-            </div>
+            <input type="text" name="username" placeholder="username" 
+                   class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-dun-600" 
+                   style="border-color: #ddd; color: #554a35;" />
+                   
+            <input type="password" name="password" placeholder="Password" 
+                   class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-dun-600" 
+                   style="border-color: #ddd; color: #554a35;" />
+                   
+            <button type="submit" 
+                    class="w-full text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+                    style="background-color: #b89576;">Log in</button>
         </form>
 
-        <hr class="my-6 border-t border-dun-400">
+        <hr class="my-6 border-t border-dun-400" style="border-color: #ddd;">
 
         <div class="text-center">
-            <a href="{% url 'main:register' %}" class="w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 inline-block">
-                Create new account
-            </a>
+            <a href="{% url 'main:register' %}" 
+               class="w-full font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 inline-block"
+               style="background-color: #8d7052; color: white;">Create new account</a>
         </div>
     </div>
 </div>
 
-<!-- Optional: Create a Page link -->
-<div class="text-center mt-4 text-sm text-dun-500">
-    <a href="#" class="hover:underline">Create a Page</a>
-</div>
-
-
 <style>
-    .bg-image {
-        display: inline-block; /* Make the span act like a block for dimensions */
-        background-image: url('{% static "image/logo.png" %}'); /* Replace with your image path */
-        background-size: cover; /* Cover the entire area */
-        background-position: center; /* Center the image */
-        color: #4a4a4a; /* Make the letter 'N' transparent */
-        width: 100px; /* Set width as needed */
-        height: 100px; /* Set height as needed */
-        text-align: center; /* Center text in the span */
-        line-height: 100px; /* Center the letter vertically */
-        font-size: 9rem; /* Match the font size to the h1 text size */
+    /* Top-left logo */
+    .logo-container {
+        position: fixed;
+        top: 5px;
+        left: 10px;
+    }
+
+    .logo {
+        width: 250px; /* Increased width for a larger logo */
+        height: auto; /* Maintain aspect ratio */
+    }
+
+    /* Flex container for central alignment */
+    .flex-container {
+        display: flex;
+        justify-content: center; /* Horizontally center the text and form */
+        align-items: center; /* Vertically center */
+        min-height: 100vh; /* Full viewport height */
+        padding: 0 2rem;
+        background-color: #f9f9f9;
+        gap: 3rem; /* Control spacing between elements */
+    }
+
+    /* Styling for Bali N Chill text */
+    .bali-text {
+        color: #b89576;
+    }
+
+    /* Larger 'N' within the text */
+    .larger-n {
+        font-size: 10rem;
+        margin: 0 0.5rem;
+    }
+
+    /* Styling for the login form container */
+    .login-form-container {
+        width: 100%;
+        max-width: 350px; /* Slightly smaller for a tighter look */
+        background-color: white;
+        padding: 2rem;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    }
+
+    /* Responsive design */
+    @media (max-width: 1024px) {
+        .flex-container {
+            flex-direction: column;
+            padding: 2rem; /* Adjust padding on smaller screens */
+        }
+
+        .bali-text {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .login-form-container {
+            margin: 0 auto;
+        }
     }
 </style>
 {% endblock %}
