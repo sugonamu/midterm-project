@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.db.models import Avg, Count
 from booking.models import Hotel
 import uuid
-
 from django.contrib.auth.models import User
 
 class Property(models.Model):
@@ -22,32 +21,58 @@ class Property(models.Model):
 
     @property
     def average_rating(self):
-        avg_rating = self.ratings.aggregate(Avg('rating'))['rating__avg']
+        avg_rating = self.main_ratings.aggregate(Avg('rating'))['rating__avg']
         return avg_rating if avg_rating is not None else 0.0
 
     @property
     def rating_count(self):
-        return self.ratings.aggregate(Count('id'))['id__count'] or 0
+        return self.main_ratings.aggregate(Count('id'))['id__count'] or 0
 
     def save(self, *args, **kwargs):
-        # Create a Hotel instance when saving a Property instance
-        hotel_instance, created = Hotel.objects.get_or_create(
-            Hotel=self.Hotel,
-            defaults={
-                'Category': self.Category,
-                'Address': self.Address,
-                'Contact': self.Contact,
-                'Price': self.Price,
-                'Amenities': self.Amenities,
-                'Image_URL': self.Image_URL,
-                'Location': self.Location,
-                'Page_URL': self.Page_URL,
-            }
-        )
+        # Try to get the existing Hotel instance based on the hotel name
+        hotel_instance = Hotel.objects.filter(Hotel=self.Hotel).first()
+
+        if hotel_instance is None:
+            # If the hotel does not exist, create a new one
+            hotel_instance = Hotel.objects.create(
+                Hotel=self.Hotel,
+                Category=self.Category,
+                Address=self.Address,
+                Contact=self.Contact,
+                Price=self.Price,
+                Amenities=self.Amenities,
+                Image_URL=self.Image_URL,
+                Location=self.Location,
+                Page_URL=self.Page_URL,
+            )
+        else:
+            # If the hotel already exists, update its details
+            hotel_instance.Category = self.Category
+            hotel_instance.Address = self.Address
+            hotel_instance.Contact = self.Contact
+            hotel_instance.Price = self.Price
+            hotel_instance.Amenities = self.Amenities
+            hotel_instance.Image_URL = self.Image_URL
+            hotel_instance.Location = self.Location
+            hotel_instance.Page_URL = self.Page_URL
+            hotel_instance.save()  # Save the updated hotel instance
+
         super().save(*args, **kwargs)  # Save the property instance
+
+    def delete(self, *args, **kwargs):
+        # Get the associated Hotel instance and delete it
+        hotel_instance = Hotel.objects.filter(Hotel=self.Hotel).first()
+        if hotel_instance:
+            hotel_instance.delete()  # Delete the associated hotel instance
+        
+        super().delete(*args, **kwargs)  # Delete the property instance
 
     def __str__(self):
         return self.Hotel or 'Unknown Property'
+
+
+# Rest of your models remain unchanged
+
     
 class Booking(models.Model):
     guest = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
