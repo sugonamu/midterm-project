@@ -15,15 +15,15 @@
             </form>
         </div>
 
-        <!-- Sort By Dropdown -->
-        <div class="sort-container">
-            <label for="sort">Sort by Price:</label>
-            <select id="sort" onchange="fetchResults();">
-                <option value="asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
-                <option value="desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
-            </select>
-        </div>
+       <!-- Sort By Dropdown -->
+       <div class="sort-container">
+        <label for="sort">Sort by Price:</label>
+        <select id="sort" onchange="location = this.value;">
+            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
+            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
+        </select>
     </div>
+</div>
     
 
      <!-- Hotel Preview Section -->
@@ -258,3 +258,7 @@
         }
     </script>
 {% endblock %}
+
+
+
+

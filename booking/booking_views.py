@@ -11,8 +11,12 @@ def get_hotels(request):
     data = Hotel.objects.all()
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
+from django.db.models import Avg, Count
+from django.http import JsonResponse
+from django.shortcuts import render
+from .models import Hotel
+
 def clean_price(price_str):
-    # Remove "Rp" and commas, and convert to integer for proper sorting
     cleaned_price = price_str.replace('Rp', '').replace('.', '').strip()
     return int(cleaned_price)
 
@@ -22,26 +26,25 @@ def hotel_search(request):
 
     if query:
         hotels = Hotel.objects.filter(
-            Hotel__icontains=query  # Use "Hotel" field for searching the hotel name
+            Hotel__icontains=query
         ) | Hotel.objects.filter(
-            Location__icontains=query  # Use "Location" field for searching the location
+            Location__icontains=query
         )
     else:
-        hotels = Hotel.objects.all()  # Show all hotels if no query
-    
+        hotels = Hotel.objects.all()
+
     # Annotate average rating and count of ratings
     hotels = hotels.annotate(
         avg_rating=Avg('booking_ratings__rating'),  # Average rating
         review_count=Count('booking_ratings')  # Count of reviews
     )
 
-
     # Sort by price
     hotels = list(hotels)  # Convert queryset to a list to allow sorting with custom logic
     if sort_by == 'desc':
-        hotels.sort(key=lambda x: clean_price(x.Price), reverse=True)  # Sort in descending order
+        hotels.sort(key=lambda x: clean_price(x.Price), reverse=True)
     else:
-        hotels.sort(key=lambda x: clean_price(x.Price))  # Sort in ascending order
+        hotels.sort(key=lambda x: clean_price(x.Price))
 
     # Check if the request is AJAX
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -50,10 +53,9 @@ def hotel_search(request):
                 'id': hotel.id,
                 'Hotel': hotel.Hotel,
                 'Price': hotel.Price,
-                'Rating': hotel.Rating,
+                'avg_rating': hotel.avg_rating or 'Not Rated',
+                'review_count': hotel.review_count,
                 'Image_URL': hotel.Image_URL,
-                'Location': hotel.Location,
-                'Page_URL': hotel.Page_URL,
             }
             for hotel in hotels
         ]
@@ -61,6 +63,7 @@ def hotel_search(request):
 
     # Render the full page if not AJAX
     return render(request, 'booking/hotel_search.html', {'hotels': hotels, 'sort_by': sort_by})
+
 
 # Booking view (assuming a simple booking model)
 def book_hotel(request, hotel_id):
