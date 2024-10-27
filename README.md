@@ -22,7 +22,7 @@ The website helps travelers by providing detailed property descriptions, user re
 * Payment module (accesed by customer) this is where customer can do their payment
 * Rating module (accesed by customer) this is where customer can rate hotels
 * Authentication module ( this is where login, register and stuff)
-* User profile module ( accesed by customer) this is where user can customize their profile, and see their profile eg, their booking history
+* User profile module ( accesed by customer) this is where user can customize their profil.
     
 ## **Source of initial dataset for main product category**
 https://www.kaggle.com/datasets/jokottingkir/bali-hotels-and-destinations

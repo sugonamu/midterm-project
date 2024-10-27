@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from django.core import serializers
 from .models import Hotel
 
@@ -27,12 +27,27 @@ def hotel_search(request):
 
     # Sort by price
     hotels = list(hotels)  # Convert queryset to a list to allow sorting with custom logic
-
     if sort_by == 'desc':
         hotels.sort(key=lambda x: clean_price(x.Price), reverse=True)  # Sort in descending order
     else:
         hotels.sort(key=lambda x: clean_price(x.Price))  # Sort in ascending order
 
+    # Check if the request is AJAX
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        hotels_data = [
+            {
+                'Hotel': hotel.Hotel,
+                'Price': hotel.Price,
+                'Rating': hotel.Rating,
+                'Image_URL': hotel.Image_URL,
+                'Location': hotel.Location,
+                'Page_URL': hotel.Page_URL,
+            }
+            for hotel in hotels
+        ]
+        return JsonResponse({'hotels': hotels_data})
+
+    # Render the full page if not AJAX
     return render(request, 'booking/hotel_search.html', {'hotels': hotels, 'sort_by': sort_by})
 
 # Booking view (assuming a simple booking model)

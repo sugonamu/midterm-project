@@ -10,28 +10,29 @@
     <!-- Search Bar with Sort By -->
     <div class="search-sort-container">
         <div class="search-box">
-            <form method="GET" action="{% url 'booking:hotel_search' %}">
-                <input type="text" name="q" placeholder="City, hotel, place to go" value="{{ request.GET.q }}">
-                <button type="submit">Search</button>
+            <form method="GET" action="{% url 'booking:hotel_search' %}" id="searchForm">
+                <input type="text" name="q" placeholder="PlacesInBali" value="{{ request.GET.q }}" id="searchInput">
             </form>
         </div>
 
         <!-- Sort By Dropdown -->
         <div class="sort-container">
             <label for="sort">Sort by Price:</label>
-            <select id="sort" onchange="location = this.value;">
-                <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
-                <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
+            <select id="sort" onchange="fetchResults();">
+                <option value="asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
+                <option value="desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
             </select>
         </div>
     </div>
 
     <!-- Hotel Preview Section -->
-    <div class="hotel-grid">
+    <div class="hotel-grid" id="hotelResults">
+        <!-- This section will be dynamically updated with AJAX -->
         {% if hotels %}
             {% for hotel in hotels %}
                 <div class="hotel">
-                    <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
+                    <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}" 
+                         onerror="this.onerror=null; this.src='{% static 'image/No_image.jpg' %}';" />
                     <div class="hotel-content">
                         <h3>{{ hotel.Hotel }}</h3>
                         <p class="price">Price: {{ hotel.Price }}</p>
@@ -72,7 +73,7 @@
             padding: 15px;
             border-radius: 50px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
-            width: 90%; /* Wider search box */
+            width: 50%; /* Wider search box */
             max-width: 1200px; /* Maximum width to control the expansion on large screens */
         }
 
@@ -88,17 +89,6 @@
             font-size: 16px;
             width: 85%;
             border-radius: 50px 0 0 50px;
-            outline: none;
-        }
-
-        .search-box button {
-            border: none;
-            background-color: #997A57; /* Rich Tan */
-            color: white;
-            padding: 10px 25px;
-            font-size: 16px;
-            border-radius: 0 50px 50px 0;
-            cursor: pointer;
             outline: none;
         }
 
@@ -209,4 +199,60 @@
             color: #fff;
         }
     </style>
+
+    <!-- AJAX Script with Debounce -->
+    <script>
+        let debounceTimeout; // Variable to store the timeout ID
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            // Clear the previous timeout
+            clearTimeout(debounceTimeout);
+            
+            // Set a new timeout to trigger the search after 500ms
+            debounceTimeout = setTimeout(() => {
+                fetchResults(); // Call AJAX search after the user stops typing
+            }, 1000); // 500ms delay (half a second)
+        });
+
+        function fetchResults() {
+            const query = document.getElementById('searchInput').value;
+            const sortOption = document.getElementById('sort').value;
+
+            fetch(`{% url 'booking:hotel_search' %}?q=${query}&sort=${sortOption}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update hotel grid with new results
+                updateHotelGrid(data);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function updateHotelGrid(data) {
+            const hotelGrid = document.getElementById('hotelResults');
+            hotelGrid.innerHTML = ''; // Clear existing results
+
+            if (data.hotels.length > 0) {
+                data.hotels.forEach(hotel => {
+                    hotelGrid.innerHTML += `
+                        <div class="hotel">
+                            <img src="${hotel.Image_URL}" alt="Image of ${hotel.Hotel}" 
+                                 onerror="this.onerror=null; this.src='{% static 'image/No_image.jpg' %}';" />
+                            <div class="hotel-content">
+                                <h3>${hotel.Hotel}</h3>
+                                <p class="price">Price: ${hotel.Price}</p>
+                                <p class="rating">Rating: ⭐ ${hotel.Rating}</p>
+                                <a href="/booking/book/${hotel.id}/" class="book-now">Book Now</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                hotelGrid.innerHTML = '<p>No hotels found.</p>';
+            }
+        }
+    </script>
 {% endblock %}

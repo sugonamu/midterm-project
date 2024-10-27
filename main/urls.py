@@ -15,5 +15,6 @@ urlpatterns = [
     path('property/delete/<uuid:property_id>/', views.delete_property, name='delete_property'),
     path('properties/<uuid:property_id>/rate/', views.add_rating, name='add_rating'),
     path('property/<uuid:property_id>/reviews/', views.property_reviews, name='property_reviews'),
-    path('host_dashboard/', views.host_dashboard, name='host_dashboard')
+    path('host_dashboard/', views.host_dashboard, name='host_dashboard'),
+
 ]

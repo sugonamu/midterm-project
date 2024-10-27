@@ -49,11 +49,20 @@ def login_view(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
+
             if user is not None:
                 login(request, user)
-                response = redirect('booking:hotel_search')
+                response = redirect('booking:hotel_search')  # Default redirect
+
+                # Set last login cookie
                 response.set_cookie('last_login', str(datetime.datetime.now()))
-                return response
+
+                # Role-based redirection
+                if user.userprofile.role == 'host':
+                    return redirect('main:host_dashboard')  # Replace with your host dashboard URL name
+                else:
+                    return redirect('booking:hotel_search')  # Replace with your guest dashboard URL name
+
             else:
                 messages.error(request, "Invalid username or password.")
     else:
