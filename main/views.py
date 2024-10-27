@@ -107,15 +107,19 @@ def property_detail(request, property_id):
 @user_is_host
 def add_property(request):
     if request.method == "POST":
-        form = PropertyForm(request.POST, request.FILES)
+        form = PropertyForm(request.POST, request.FILES)  # Make sure to include request.FILES for file uploads
         if form.is_valid():
             property_instance = form.save(commit=False)
-            property_instance.host = request.user
-            property_instance.save()
+            property_instance.host = request.user  # Set the host to the logged-in user
+            property_instance.save()  # Save the property instance to the database
+            
             return JsonResponse({'success': True, 'message': 'Property added successfully.'})
         else:
-            return JsonResponse({'success': False, 'errors': form.errors})
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+            return JsonResponse({'success': False, 'errors': form.errors})  # Return form errors in JSON format
+
+    # Handle GET request by rendering the form
+    form = PropertyForm()  # Create a blank form instance
+    return render(request, 'addproperty.html', {'form': form})  # Render the form template
 
 @user_is_host
 def edit_property(request, property_id):
@@ -136,7 +140,7 @@ def edit_property(request, property_id):
 def delete_property(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id)
     property_instance.delete()
-    return HttpResponseRedirect(reverse('main:home'))
+    return HttpResponseRedirect(reverse('main:host_dashboard'))
 
 def property_list(request):
     properties = Property.objects.all()

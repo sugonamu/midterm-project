@@ -10,30 +10,38 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'input-class'})
     )
     
+from django import forms
+from .models import Property
+
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
         fields = [
-            'title',
-            'description',
-            'price_per_night',
-            'address',
-            'number_of_guests',
-            'number_of_bedrooms',
-            'number_of_bathrooms',
-            'is_available'
+            'Hotel',               # Hotel name
+            'Category',            # Hotel category
+            'Rating',              # Rating of the hotel
+            'Address',             # Address of the hotel
+            'Contact',             # Contact information
+            'Price',               # Price in string format
+            'Amenities',           # Amenities provided by the hotel
+            'Image_URL',           # URL of the image
+            'Location',            # Location of the hotel
+            'Page_URL',            # URL to the hotel's page
         ]
 
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Property Title'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Property Description'}),
-            'price_per_night': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price per Night'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
-            'number_of_guests': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Number of Guests'}),
-            'number_of_bedrooms': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Number of Bedrooms'}),
-            'number_of_bathrooms': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Number of Bathrooms'}),
-            'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'Hotel': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Hotel Name'}),
+            'Category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Category'}),
+            'Rating': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Rating'}),
+            'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
+            'Contact': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Information'}),
+            'Price': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Price'}),
+            'Amenities': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Amenities'}),
+            'Image_URL': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Image URL'}),
+            'Location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Location'}),
+            'Page_URL': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Page URL'}),
         }
+
 
     def clean_price_per_night(self):
         price = self.cleaned_data.get('price_per_night')

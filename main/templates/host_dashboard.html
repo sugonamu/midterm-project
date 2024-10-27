@@ -14,11 +14,17 @@
         {% if properties %}
             {% for property in properties %}
                 <div class="border-b pb-4 mb-4">
-                    <h3 class="text-xl font-bold">{{ property.title }}</h3>
-                    <p>{{ property.description }}</p>
-                    <p><strong>Price per night:</strong> ${{ property.price_per_night }}</p>
-                    <p><strong>Address:</strong> {{ property.address }}</p>
-
+                    <h3 class="text-xl font-bold">{{ property.Hotel }}</h3>
+                    <p><strong>Category:</strong> {{ property.Category }}</p>
+                    <p><strong>Rating:</strong> {{ property.Rating }}</p>
+                    <p><strong>Address:</strong> {{ property.Address }}</p>
+                    <p><strong>Contact:</strong> {{ property.Contact }}</p>
+                    <p><strong>Price:</strong> {{ property.Price }}</p>
+                    <p><strong>Amenities:</strong> {{ property.Amenities }}</p>
+                    <p><strong>Location:</strong> {{ property.Location }}</p>
+                    <p><strong>Page URL:</strong> <a href="{{ property.Page_URL }}">{{ property.Page_URL }}</a></p>
+                    
+                    
                     <h4 class="text-lg font-semibold mt-4">Bookings:</h4>
                     {% if property.bookings.all %}
                         <ul class="list-disc ml-6">
@@ -34,6 +40,16 @@
                     {% else %}
                         <p>No bookings yet for this property.</p>
                     {% endif %}
+                    
+                    <!-- Optional Edit/Delete buttons -->
+                    <div class="flex justify-between p-3 border-t border-gray-200"> 
+                        <a href="{% url 'main:edit_property' property.id %}" class="bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm px-3 py-1.5 transition duration-300">
+                            Edit
+                        </a>
+                        <a href="{% url 'main:delete_property' property.id %}" class="bg-red-400 hover:bg-red-500 text-white rounded-lg text-sm px-3 py-1.5 transition duration-300">
+                            Delete
+                        </a>
+                    </div>
                 </div>
             {% endfor %}
         {% else %}
@@ -46,12 +62,3 @@
     </a>
 </div> 
 {% endblock %}
-
-    <!--=<div class="flex justify-between p-3 border-t border-gray-200"> 
-        <a href="{% url 'main:edit_property' property.id %}" class="bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm px-3 py-1.5 transition duration-300">
-            Edit
-        </a>
-        <a href="{% url 'main:delete_property' property.id %}" class="bg-red-400 hover:bg-red-500 text-white rounded-lg text-sm px-3 py-1.5 transition duration-300">
-            Delete
-        </a>
-    </div>

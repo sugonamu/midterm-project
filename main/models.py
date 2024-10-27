@@ -10,21 +10,23 @@ from django.contrib.auth.models import User
 class Property(models.Model):
     host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    price_per_night = models.DecimalField(max_digits=10, decimal_places=2)
-    address = models.CharField(max_length=255)
-    number_of_guests = models.IntegerField()
-    number_of_bedrooms = models.IntegerField()
-    number_of_bathrooms = models.IntegerField()
-    is_available = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    Hotel = models.TextField(null=True, blank=True)  # Hotel name
+    Category = models.TextField(null=True, blank=True)  # Hotel category
+    Rating = models.FloatField(null=True, blank=True)  # Rating of the hotel
+    Address = models.TextField(null=True, blank=True)  # Address of the hotel
+    Contact = models.TextField(null=True, blank=True)  # Contact information
+    Price = models.TextField(null=True, blank=True)  # Price in the string format
+    Amenities = models.TextField(null=True, blank=True)  # Amenities provided by the hotel
+    Image_URL = models.TextField(null=True, blank=True)  # URL of the image
+    Location = models.TextField(null=True, blank=True)  # Location of the hotel
+    Page_URL = models.TextField(null=True, blank=True)  # URL to the hotel's page
+
     @property
     def average_rating(self):
         avg_rating = self.ratings.aggregate(Avg('rating'))['rating__avg']
         return avg_rating if avg_rating is not None else 0.0
 
-
+#
     @property
     def rating_count(self):
         return self.ratings.aggregate(Count('id'))['id__count'] or 0

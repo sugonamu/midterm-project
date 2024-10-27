@@ -1,6 +1,6 @@
 {% extends 'base.html' %} 
 
-{% block title %}Add Propery{% endblock title %}
+{% block title %}Add Property{% endblock title %}
 
 {% block content %}
 
@@ -12,15 +12,82 @@
     <form method="POST" enctype="multipart/form-data" class="bg-grey p-6 rounded-lg shadow-md w-full max-w-lg">
         {% csrf_token %}
         <table class="w-full">
-            {{ form.as_table }}
+            <tr>
+                <td><label for="id_Hotel">Hotel Name:</label></td>
+                <td>{{ form.Hotel }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Category">Category:</label></td>
+                <td>{{ form.Category }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Rating">Rating:</label></td>
+                <td>{{ form.Rating }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Address">Address:</label></td>
+                <td>{{ form.Address }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Contact">Contact:</label></td>
+                <td>{{ form.Contact }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Price">Price:</label></td>
+                <td>{{ form.Price }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Amenities">Amenities:</label></td>
+                <td>{{ form.Amenities }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Image_URL">Image URL:</label></td>
+                <td>{{ form.Image_URL }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Location">Location:</label></td>
+                <td>{{ form.Location }}</td>
+            </tr>
+            <tr>
+                <td><label for="id_Page_URL">Page URL:</label></td>
+                <td>{{ form.Page_URL }}</td>
+            </tr>
             <tr>
                 <td></td>
                 <td class="mt-4">
-                    <input type="submit" value="Add Product" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"/>
+                    <input type="submit" value="Add Property" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"/>
                 </td>
             </tr>
         </table>
     </form>
 </div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(event) {
+    event.preventDefault();  // Prevent the default form submission
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'  // Optional: lets the server know it's an AJAX request
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);  // Show success message
+            window.location.href = "{% url 'main:host_dashboard' %}";  // Redirect to the dashboard
+        } else {
+            // Handle validation errors
+            for (const [key, value] of Object.entries(data.errors)) {
+                alert(key + ": " + value.join(", "));  // Show the error messages
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
 
 {% endblock %}
