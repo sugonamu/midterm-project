@@ -53,8 +53,10 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-class Rating(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="ratings")
+
+
+class propRating(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="main_ratings")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField()  # Rating out of 5
     review = models.TextField(blank=True, null=True)

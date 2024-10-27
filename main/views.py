@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .forms import PropertyForm
-from .models import Property, UserProfile ,Rating, Booking
+from .models import Property, UserProfile ,propRating, Booking
 from functools import wraps
 
 def is_host(user):
@@ -169,7 +169,7 @@ def add_rating(request, property_id):
     property_instance = get_object_or_404(Property, pk=property_id)
     
     # Check if the user has already rated this property
-    existing_rating = Rating.objects.filter(property=property_instance, user=request.user).first()
+    existing_rating = propRating.objects.filter(property=property_instance, user=request.user).first()
     
     if request.method == "POST":
         rating_value = request.POST.get('rating')  # Get the rating from the form input
@@ -182,7 +182,7 @@ def add_rating(request, property_id):
             existing_rating.save()
         else:
             # Create a new rating
-            Rating.objects.create(
+            propRating.objects.create(
                 property=property_instance,
                 user=request.user,
                 rating=rating_value,

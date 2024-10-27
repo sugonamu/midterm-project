@@ -29,6 +29,27 @@
 
                 <!-- Payment Button -->
                 <a href="{% url 'payment:payment_page' hotel.id %}" class="payment-button">Proceed to Payment</a>
+                 <!-- Add Review Button -->
+                 <a href="{% url 'booking:add_rating' hotel_id=hotel.id %}" class="payment-button">Add Review</a>
+
+                </div>
+            </div>
+             <!-- Ratings Section -->
+             <div class="ratings-section">
+                <h2>Ratings & Reviews</h2>
+                {% if ratings %}
+                    <ul>
+                        {% for rating in ratings %}
+                            <li>
+                                <strong>{{ rating.user.username }}:</strong> ⭐ {{ rating.rating }} - {{ rating.review }}
+                                <span class="date">{{ rating.created_at|date:"F j, Y" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No ratings yet. Be the first to leave a review!</p>
+                {% endif %}
+            </div>
             </div>
         </div>
 

@@ -1,7 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse,JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.core import serializers
-from .models import Hotel
+from .models import Hotel,Rating
+from django.db.models import Avg,Count
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseBadRequest
 
 def get_hotels(request):
     data = Hotel.objects.all()
@@ -24,6 +28,13 @@ def hotel_search(request):
         )
     else:
         hotels = Hotel.objects.all()  # Show all hotels if no query
+    
+    # Annotate average rating and count of ratings
+    hotels = hotels.annotate(
+        avg_rating=Avg('booking_ratings__rating'),  # Average rating
+        review_count=Count('booking_ratings')  # Count of reviews
+    )
+
 
     # Sort by price
     hotels = list(hotels)  # Convert queryset to a list to allow sorting with custom logic
@@ -61,11 +72,58 @@ def book_hotel(request, hotel_id):
     # Get related hotels by location (excluding the current hotel)
     related_hotels = Hotel.objects.filter(Location=hotel.Location).exclude(id=hotel.id)
 
+    # Fetch the ratings for the current hotel
+    ratings = hotel.booking_ratings.all()  # This accesses the related ratings using the related_name
+
     return render(request, 'booking/book_hotel.html', {
         'hotel': hotel,
         'amenities_list': amenities_list,  # Pass the split amenities list to the template
-        'related_hotels': related_hotels
+        'related_hotels': related_hotels,
+        'ratings': ratings  # Pass the ratings to the template
     })
 
 def booking_success(request):
     return render(request, 'booking/booking_success.html')
+
+
+
+
+
+def add_rating(request, hotel_id):
+    hotel_instance = get_object_or_404(Hotel, pk=hotel_id)
+    
+    # Check if the user has already rated this hotel
+    existing_rating = Rating.objects.filter(hotel=hotel_instance, user=request.user).first()
+    
+    if request.method == "POST":
+        rating_value = request.POST.get('rating')
+        review_text = request.POST.get('review')
+        
+        # Ensure rating_value is a number
+        try:
+            rating_value = int(rating_value)
+        except (ValueError, TypeError):
+            return HttpResponseBadRequest("Invalid rating value")
+
+        if existing_rating:
+            # Update the existing rating
+            existing_rating.rating = rating_value
+            existing_rating.review = review_text
+            existing_rating.save()
+        else:
+            # Create a new rating
+            Rating.objects.create(
+                hotel=hotel_instance,
+                user=request.user,
+                rating=rating_value,
+                review=review_text
+            )
+
+        # Redirect to the hotel detail page after adding/updating the rating
+        return redirect('booking:book_hotel', hotel_id=hotel_instance.id)  # Adjust URL as necessary
+
+    # If GET request, render the rating form
+    return render(request, 'booking/add_rating.html', {
+        'hotel': hotel_instance,
+        'existing_rating': existing_rating
+    })
