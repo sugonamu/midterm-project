@@ -8,7 +8,8 @@
     {% endblock meta %}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
-    <title>{% block title %}Airbnb in Bali{% endblock title %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>{% block title %}Bali N Chill{% endblock title %}</title>
 </head>
 <body class="flex flex-col min-h-screen">
     <main class="flex-grow">
@@ -17,11 +18,11 @@
         {% endblock %}
     </main>
 
-    <footer class="bg-gray-800 text-white py-6">
+    <footer class="footer">
         <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-bold mb-2 text-center">Why Choose Us?</h2>
-            <p class="text-center">Discover unique properties with top amenities for an unforgettable Bali experience. From beachfront villas to cozy retreats, we have something for everyone!</p>
-            <h5 class="text-sm text-gray-500 text-center">Last login session: {{ last_login }}</h5>
+            <h2 class="text-2xl font-bold mb-2">Why Choose Us?</h2>
+            <p>Discover unique properties with top amenities for an unforgettable Bali experience. From beachfront villas to cozy retreats, we have something for everyone!</p>
+            <h5 class="text-sm text-gray-500">Last login session: {{ last_login }}</h5>
         </div>
     </footer>
 </body>

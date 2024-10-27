@@ -1,22 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends 'base.html' %}  <!-- Extend the base template -->
+{% load static %}
+
+{% block content %}
+    {% include 'navbar.html' %}  <!-- Include the navbar -->
     <title>Payment Page</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
     />
     <style>
-      /* Initially hide both forms */
-      #credit_card_form,
-      #virtual_account_form {
-        display: none;
-        transition: all 0.5s ease;
+      body {
+        background-color: #f5f0d7; /* Light beige */
+        color: #5c4a3e; /* Soft brown for text */
       }
 
-      /* Payment Option Styling */
+      h2, h4, .price-details h5 {
+        color: #5c4a3e; /* Consistent soft brown */
+      }
+
+      .container {
+        background-color: #ffffff; /* White background for the main container */
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      /* Price details background */
+    .price-details {
+        background-color: #e8dfc9; /* Light beige to match the overall scheme */
+        padding: 15px;
+        border-radius: 8px;
+      }
+
+    /* Button styling */
+    .btn-primary {
+        background-color: #a5835e; /* Brownish button color to match the picture */
+        border: none;
+      }
+
+    .btn-primary:hover {
+        background-color: #8a6e54; /* Darker brown for hover effect */
+      }
       .payment-option {
         display: flex;
         align-items: center;
@@ -26,6 +49,8 @@
         margin-bottom: 10px;
         cursor: pointer;
         transition: background 0.3s ease;
+        background-color: #e8dfc9; 
+        color: #5c4a3e; 
       }
 
       .payment-option:hover {
@@ -49,8 +74,8 @@
 
       /* Selected State */
       .payment-option.selected {
-        background-color: #f0f8ff;
-        border-color: #007bff;
+        background-color: #f0e4ce;
+        border-color: #a5835e;
       }
 
       /* Success Message Styling */
@@ -68,16 +93,32 @@
   </head>
   <body>
     <div class="container mt-5">
-      <h2>Select Payment Method</h2>
+      <h2>Payment Page</h2>
+
+      
+
       <form id="payment_form" method="POST" action="">
         {% csrf_token %}
 
+        <h4>Booking Details</h4>
+      <h5>Hotel: {{ Hotel }}</h5>
+      <h5>Category: {{ Category }}</h5>
+      <h5>Rating : {{ Rating }}</h5>
+      <h5>Amenities: {{ Amenities }}</h5>
+      <h5>City : {{ City }}</h5>
+      <h5>Address : {{ Address }}</h5>
+      <div class="mb-3">
+        <label for="booking_date" class="form-label">Booking Date</label>
+        <input
+          type="date"
+          class="form-control"
+          id="booking_date"
+          name="booking_date"
+          required
+        />
+      </div>
         <!-- Contact Details Section -->
         <h4>Contact Details</h4>
-        <p>
-          Please fill in all fields correctly to ensure you receive the booking
-          confirmation voucher in your email.
-        </p>
         <div class="mb-3">
           <label for="full_name" class="form-label">Full Name</label>
           <input
@@ -85,11 +126,9 @@
             class="form-control"
             id="full_name"
             name="full_name"
+            placeholder="Please enter your full name"
             required
           />
-          <div class="error-message" id="full_name_error">
-            Please enter a value greater than or equal to 2 characters.
-          </div>
         </div>
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
@@ -98,9 +137,9 @@
             class="form-control"
             id="email"
             name="email"
+            placeholder="Please enter your email"
             required
           />
-          <div class="error-message" id="email_error">Invalid email.</div>
         </div>
         <div class="mb-3">
           <label for="mobile_number" class="form-label">Mobile Number</label>
@@ -110,11 +149,9 @@
               class="form-control"
               id="mobile_number"
               name="mobile_number"
+              placeholder="Please enter your mobile number"
               required
             />
-          </div>
-          <div class="error-message" id="mobile_number_error">
-            Please enter a value greater than or equal to 5 characters.
           </div>
         </div>
 
@@ -145,13 +182,10 @@
               class="form-control"
               id="credit_card_number"
               name="credit_card_number"
-              placeholder="Credit Card Number"
+              placeholder="Credit card number must be exactly 16 digits."
               inputmode="numeric"
               maxlength="16"
             />
-            <div class="error-message" id="credit_card_error">
-              Credit card number must be exactly 16 digits.
-            </div>
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
@@ -161,12 +195,10 @@
                 class="form-control"
                 id="valid_thru"
                 name="valid_thru"
-                placeholder="MM/YY"
+                placeholder="Please enter a valid expiration date (MM/YY)."
                 maxlength="5"
+                inputmode="numeric"
               />
-              <div class="error-message" id="valid_thru_error">
-                Please enter a valid expiration date (MM/YY).
-              </div>
             </div>
             <div class="col-md-6 mb-3">
               <label for="cvv" class="form-label">CVV/CVN</label>
@@ -175,12 +207,9 @@
                 class="form-control"
                 id="cvv"
                 name="cvv"
-                placeholder="3-4 digits code"
+                placeholder="CVV must be 3-4 digits and only numbers."
                 inputmode="numeric"
               />
-              <div class="error-message" id="cvv_error">
-                CVV must be 3-4 digits and only numbers.
-              </div>
             </div>
           </div>
           <div class="mb-3">
@@ -201,12 +230,12 @@
         <h5>Price details</h5>
         <div class="price-item">
           <span>Room Price</span>
-          <span>Rp 663.843</span>
+          <span>{{ Price }}</span>
         </div>
         <hr />
         <div class="total-price">
           <span>Total Price</span>
-          <span>Rp 663.843</span>
+          <span>{{ Price }}</span>
         </div>
       </div>
 
@@ -219,61 +248,56 @@
     <script>
       function toggleForm(selectedOption) {
         const creditCardForm = document.getElementById("credit_card_form");
-        const virtualAccountForm = document.getElementById(
-          "virtual_account_form"
-        );
         const creditCardOption = document.getElementById("credit_card_option");
-        const virtualAccountOption = document.getElementById(
-          "virtual_account_option"
-        );
-
+    
+        // Toggle visibility of the credit card form based on its current state
         if (selectedOption === "credit_card") {
-          creditCardForm.style.display = "block";
-          virtualAccountForm.style.display = "none";
-          creditCardOption.classList.add("selected");
-          virtualAccountOption.classList.remove("selected");
-        } else if (selectedOption === "virtual_account") {
-          virtualAccountForm.style.display = "block";
-          creditCardForm.style.display = "none";
-          virtualAccountOption.classList.add("selected");
-          creditCardOption.classList.remove("selected");
+          if (creditCardForm.style.display === "none" || creditCardForm.style.display === "") {
+            creditCardForm.style.display = "block";
+            creditCardOption.classList.add("selected");
+          } else {
+            creditCardForm.style.display = "none";
+            creditCardOption.classList.remove("selected");
+          }
         }
       }
-
+    
       document.addEventListener("DOMContentLoaded", function () {
         const creditCardInput = document.getElementById("credit_card_number");
         const creditCardError = document.getElementById("credit_card_error");
         const validThruInput = document.getElementById("valid_thru");
         const validThruError = document.getElementById("valid_thru_error");
+        const cvvInput = document.getElementById("cvv");
         const paymentForm = document.getElementById("payment_form");
-
+    
         // Ensure credit card input is numeric only
         creditCardInput.addEventListener("input", function () {
           creditCardInput.value = creditCardInput.value.replace(/\D/g, "");
         });
-
+    
         // Ensure valid thru input follows MM/YY format
         validThruInput.addEventListener("input", function () {
           let input = validThruInput.value.replace(/\D/g, ""); // Remove non-numeric characters
-          
-          // Add the slash for MM/YY format
           if (input.length > 2) {
             input = input.slice(0, 2) + "/" + input.slice(2);
           }
           validThruInput.value = input;
         });
-
+    
+        // Ensure CVV input is numeric only
+        cvvInput.addEventListener("input", function () {
+          cvvInput.value = cvvInput.value.replace(/\D/g, "");
+        });
+    
         // Validate form on submission
         paymentForm.addEventListener("submit", function (event) {
-          // Validate credit card number length
           if (creditCardInput.value.length !== 16) {
             event.preventDefault();
             creditCardError.style.display = "block";
           } else {
             creditCardError.style.display = "none";
           }
-
-          // Validate valid thru date format MM/YY and range
+    
           const validThruPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
           if (!validThruPattern.test(validThruInput.value)) {
             event.preventDefault();
@@ -283,8 +307,7 @@
           }
         });
       });
-    </script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    </script>  
   </body>
 </html>
+{% endblock %}

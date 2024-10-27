@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from booking.models import Hotel
 # Create your models here.
 
 class PaymentProfile(models.Model):
@@ -33,7 +34,10 @@ PAYMENT_METHOD_CHOICES = {
 
 class Transaction(models.Model):
 # Foreign Key to Booking
-    total_price = models.FloatField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions', blank=True, null=True)
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name='transactions', blank=True, null=True)
+    booking_date = models.DateField(blank = True, null=True)
+    total_price =  models.FloatField(default=0)
     phone_number = models.CharField(max_length=255, blank=True)
     credit_card_number = models.CharField(max_length=255, blank=True)
     valid_thru = models.CharField(max_length=5, blank=True)

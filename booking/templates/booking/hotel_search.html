@@ -1,11 +1,50 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Search</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+{% block title %}Hotel Search{% endblock %}
+
+{% block content %}
+    <!-- Include the Navbar -->
+    {% include 'navbar.html' %}
+
+    <!-- Search Bar with Sort By -->
+    <div class="search-sort-container">
+        <div class="search-box">
+            <form method="GET" action="{% url 'booking:hotel_search' %}">
+                <input type="text" name="q" placeholder="City, hotel, place to go" value="{{ request.GET.q }}">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <!-- Sort By Dropdown -->
+        <div class="sort-container">
+            <label for="sort">Sort by Price:</label>
+            <select id="sort" onchange="location = this.value;">
+                <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
+                <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Hotel Preview Section -->
+    <div class="hotel-grid">
+        {% if hotels %}
+            {% for hotel in hotels %}
+                <div class="hotel">
+                    <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
+                    <div class="hotel-content">
+                        <h3>{{ hotel.Hotel }}</h3>
+                        <p class="price">Price: {{ hotel.Price }}</p>
+                        <p class="rating">Rating: ⭐ {{ hotel.Rating }}</p>
+                        <a href="{% url 'booking:book_hotel' hotel.id %}" class="book-now">Book Now</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No hotels found.</p>
+        {% endif %}
+    </div>
+
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -14,36 +53,15 @@
             background-color: #F5F3E6; /* Light Cream */
         }
 
-        /* Navigation Bar */
-        .nav {
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-            background-color: #FFFFFF; /* White */
-            border-bottom: 1px solid #ddd;
-        }
-
-        .nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            font-weight: bold;
-            color: #333;
-            font-size: 18px;
-        }
-
-        .nav a:hover {
-            color: #997A57; /* Rich Tan */
-        }
-
-        /* Search Bar */
-        .search-container {
+        /* Search Bar and Sort By */
+        .search-sort-container {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 50px 0;
             background-color: #E7D9C7; /* Soft Beige */
-            background-size: cover;
-            background-position: center;
+            gap: 20px; /* Space between search bar and sorting */
+            width: 100%; /* Full width container */
         }
 
         .search-box {
@@ -54,14 +72,21 @@
             padding: 15px;
             border-radius: 50px;
             box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
-            width: 50%;
+            width: 90%; /* Wider search box */
+            max-width: 1200px; /* Maximum width to control the expansion on large screens */
         }
 
+        .search-box form {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+        }
+        
         .search-box input {
             border: none;
             padding: 10px;
             font-size: 16px;
-            width: 80%;
+            width: 85%;
             border-radius: 50px 0 0 50px;
             outline: none;
         }
@@ -79,8 +104,28 @@
 
         /* Sort By Dropdown */
         .sort-container {
-            text-align: center;
-            margin: 20px;
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sort-container select {
+            padding: 5px 10px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            font-size: 16px;
+            color: #997A57; /* Rich Tan */
+        }
+
+        .sort-container label {
+            font-size: 16px;
+            color: #997A57; /* Rich Tan */
         }
 
         /* Hotel Preview Grid */
@@ -164,61 +209,4 @@
             color: #fff;
         }
     </style>
-</head>
-<body>
-
-    <!-- Navigation -->
-    <div class="nav">
-        <a href="#">Search All</a>
-        <a href="#">Hotels</a>
-        <a href="#">Things to Do</a>
-        <a href="#">Restaurants</a>
-        <a href="#">Flights</a>
-        <a href="#">Vacation Rentals</a>
-    </div>
-
-    <!-- Search Bar -->
-    <div class="search-container">
-        <div class="search-box">
-            <form method="GET" action="{% url 'booking:hotel_search' %}">
-                <input type="text" name="q" placeholder="City, hotel, place to go" value="{{ request.GET.q }}">
-                <button type="submit">Search</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Sort By Dropdown -->
-    <div class="sort-container">
-        <label for="sort">Sort by Price:</label>
-        <select id="sort" onchange="location = this.value;">
-            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
-            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
-        </select>
-    </div>
-
-    <!-- Hotel Preview Section -->
-    <div class="hotel-grid">
-        {% if hotels %}
-            {% for hotel in hotels %}
-                <div class="hotel">
-                    <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
-                    <div class="hotel-content">
-                        <h3>{{ hotel.Hotel }}</h3>
-                        <p class="price">Price: Rp {{ hotel.Price }}</p>
-                        <p class="rating">Rating: ⭐ {{ hotel.Rating }}</p>
-                        <a href="{% url 'booking:book_hotel' hotel.id %}" class="book-now">Book Now</a>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No hotels found.</p>
-        {% endif %}
-    </div>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Your Booking Site. All Rights Reserved.</p>
-    </footer>
-
-</body>
-</html>
+{% endblock %}
