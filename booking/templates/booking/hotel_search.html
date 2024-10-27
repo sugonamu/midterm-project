@@ -31,14 +31,14 @@
         {% if hotels %}
             {% for hotel in hotels %}
                 <div class="hotel">
-                    <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
+                    <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}" 
+                         onerror="this.onerror=null; this.src='{% static 'image/No_image.jpg' %}';" />
                     <div class="hotel-content">
                         <h3>{{ hotel.Hotel }}</h3>
                         <p class="price">Price: {{ hotel.Price }}</p>
                         <p class="rating">
                             Rating: ⭐ {{ hotel.avg_rating|default:"Not Rated" }} ({{ hotel.review_count }})
                         </p>
-                        
                         <a href="{% url 'booking:book_hotel' hotel.id %}" class="book-now">Book Now</a>
                     </div>
                 </div>
