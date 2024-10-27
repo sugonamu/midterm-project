@@ -49,7 +49,6 @@ def payment_page(request, hotel_id):
         "Price": hotel.Price,
         "Hotel": hotel.Hotel,
         "Category": hotel.Category,
-        "Rating": hotel.Rating,
         "Amenities": hotel.Amenities,
         "City": hotel.Location,
         "Address": hotel.Address,

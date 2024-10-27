@@ -1,8 +1,8 @@
-{% extends 'base.html' %}  <!-- Extend the base template -->
+{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-    {% include 'navbar.html' %}  <!-- Include the navbar -->
+    {% include 'navbar.html' %}
     <title>Payment Page</title>
     <link
       rel="stylesheet"
@@ -17,27 +17,32 @@
       h2, h4, .price-details h5 {
         color: #5c4a3e; /* Consistent soft brown */
       }
-
+      
+      a {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      
       .container {
-        background-color: #ffffff; /* White background for the main container */
         border-radius: 8px;
         padding: 20px;
       }
 
       /* Price details background */
-    .price-details {
+      .price-details {
         background-color: #e8dfc9; /* Light beige to match the overall scheme */
         padding: 15px;
         border-radius: 8px;
       }
 
-    /* Button styling */
-    .btn-primary {
+      /* Button styling with extra margin for spacing */
+      .btn-primary {
         background-color: #a5835e; /* Brownish button color to match the picture */
         border: none;
+        margin-top: 20px; /* Add space above the button */
       }
 
-    .btn-primary:hover {
+      .btn-primary:hover {
         background-color: #8a6e54; /* Darker brown for hover effect */
       }
       .payment-option {
@@ -89,34 +94,72 @@
         color: red;
         font-size: 0.9em;
       }
+
+      /* Styling for booking details */
+      .booking-details {
+        background-color: #f0e4ce;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .detail-item strong {
+        min-width: 80px;
+        font-weight: 600;
+        color: #5c4a3e;
+      }
+
+      .detail-item span {
+        color: #5c4a3e;
+      }
     </style>
   </head>
   <body>
     <div class="container mt-5">
       <h2>Payment Page</h2>
 
-      
-
       <form id="payment_form" method="POST" action="">
         {% csrf_token %}
 
         <h4>Booking Details</h4>
-      <h5>Hotel: {{ Hotel }}</h5>
-      <h5>Category: {{ Category }}</h5>
-      <h5>Rating : {{ Rating }}</h5>
-      <h5>Amenities: {{ Amenities }}</h5>
-      <h5>City : {{ City }}</h5>
-      <h5>Address : {{ Address }}</h5>
-      <div class="mb-3">
-        <label for="booking_date" class="form-label">Booking Date</label>
-        <input
-          type="date"
-          class="form-control"
-          id="booking_date"
-          name="booking_date"
-          required
-        />
-      </div>
+        <div class="booking-details">
+          <div class="detail-item">
+            <strong>Hotel:</strong> <span>{{ Hotel }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Category:</strong> <span>{{ Category }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Rating:</strong> <span>{{ Rating }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Amenities:</strong> <span>{{ Amenities }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>City:</strong> <span>{{ City }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Address:</strong> <span>{{ Address }}</span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="booking_date" class="form-label">Booking Date</label>
+          <input
+            type="date"
+            class="form-control"
+            id="booking_date"
+            name="booking_date"
+            required
+          />
+        </div>
+
         <!-- Contact Details Section -->
         <h4>Contact Details</h4>
         <div class="mb-3">
@@ -143,16 +186,14 @@
         </div>
         <div class="mb-3">
           <label for="mobile_number" class="form-label">Mobile Number</label>
-          <div class="input-group">
-            <input
-              type="tel"
-              class="form-control"
-              id="mobile_number"
-              name="mobile_number"
-              placeholder="Please enter your mobile number"
-              required
-            />
-          </div>
+          <input
+            type="tel"
+            class="form-control"
+            id="mobile_number"
+            name="mobile_number"
+            placeholder="Please enter your mobile number"
+            required
+          />
         </div>
 
         <h4>Payment Section</h4>
@@ -171,7 +212,7 @@
         </div>
 
         <!-- Credit Card Form -->
-        <div id="credit_card_form">
+        <div id="credit_card_form" style="display: none;">
           <h4>Credit Card Installment</h4>
           <div class="mb-3">
             <label for="credit_card_number" class="form-label"
@@ -195,7 +236,7 @@
                 class="form-control"
                 id="valid_thru"
                 name="valid_thru"
-                placeholder="Please enter a valid expiration date (MM/YY)."
+                placeholder="MM/YY"
                 maxlength="5"
                 inputmode="numeric"
               />
@@ -203,12 +244,15 @@
             <div class="col-md-6 mb-3">
               <label for="cvv" class="form-label">CVV/CVN</label>
               <input
-                type="text"
+                type="number"
                 class="form-control"
                 id="cvv"
                 name="cvv"
-                placeholder="CVV must be 3-4 digits and only numbers."
+                placeholder="CVV (3-4 digits)"
                 inputmode="numeric"
+                maxlength="4"
+                oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4)"
+                required
               />
             </div>
           </div>
@@ -224,33 +268,29 @@
           </div>
         </div>
 
-
-          <!-- Price Details Section -->
-      <div class="price-details">
-        <h5>Price details</h5>
-        <div class="price-item">
-          <span>Room Price</span>
-          <span>{{ Price }}</span>
+        <!-- Price Details Section -->
+        <div class="price-details">
+          <h5>Price details</h5>
+          <div class="price-item">
+            <span>Room Price</span>
+            <span>{{ Price }}</span>
+          </div>
+          <hr />
+          <div class="total-price">
+            <span>Total Price</span>
+            <span>{{ Price }}</span>
+          </div>
         </div>
-        <hr />
-        <div class="total-price">
-          <span>Total Price</span>
-          <span>{{ Price }}</span>
-        </div>
-      </div>
 
-      <button type="submit" class="btn btn-primary">Submit Payment</button>
-    </form>
-
-
-    
+        <!-- Add some space between price details and the button -->
+        <button type="submit" class="btn btn-primary">Submit Payment</button>
+      </form>
 
     <script>
       function toggleForm(selectedOption) {
         const creditCardForm = document.getElementById("credit_card_form");
         const creditCardOption = document.getElementById("credit_card_option");
     
-        // Toggle visibility of the credit card form based on its current state
         if (selectedOption === "credit_card") {
           if (creditCardForm.style.display === "none" || creditCardForm.style.display === "") {
             creditCardForm.style.display = "block";
@@ -261,50 +301,16 @@
           }
         }
       }
-    
+
       document.addEventListener("DOMContentLoaded", function () {
-        const creditCardInput = document.getElementById("credit_card_number");
-        const creditCardError = document.getElementById("credit_card_error");
         const validThruInput = document.getElementById("valid_thru");
-        const validThruError = document.getElementById("valid_thru_error");
-        const cvvInput = document.getElementById("cvv");
-        const paymentForm = document.getElementById("payment_form");
-    
-        // Ensure credit card input is numeric only
-        creditCardInput.addEventListener("input", function () {
-          creditCardInput.value = creditCardInput.value.replace(/\D/g, "");
-        });
-    
-        // Ensure valid thru input follows MM/YY format
+
         validThruInput.addEventListener("input", function () {
-          let input = validThruInput.value.replace(/\D/g, ""); // Remove non-numeric characters
-          if (input.length > 2) {
-            input = input.slice(0, 2) + "/" + input.slice(2);
-          }
-          validThruInput.value = input;
-        });
-    
-        // Ensure CVV input is numeric only
-        cvvInput.addEventListener("input", function () {
-          cvvInput.value = cvvInput.value.replace(/\D/g, "");
-        });
-    
-        // Validate form on submission
-        paymentForm.addEventListener("submit", function (event) {
-          if (creditCardInput.value.length !== 16) {
-            event.preventDefault();
-            creditCardError.style.display = "block";
-          } else {
-            creditCardError.style.display = "none";
-          }
-    
-          const validThruPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
-          if (!validThruPattern.test(validThruInput.value)) {
-            event.preventDefault();
-            validThruError.style.display = "block";
-          } else {
-            validThruError.style.display = "none";
-          }
+            let input = validThruInput.value.replace(/\D/g, ""); // Remove non-numeric characters
+            if (input.length > 2) {
+                input = input.slice(0, 2) + "/" + input.slice(2);
+            }
+            validThruInput.value = input;
         });
       });
     </script>  
