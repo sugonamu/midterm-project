@@ -33,41 +33,59 @@ def host_dashboard(request):
     bookings = Booking.objects.filter(property__in=properties)
     return render(request, 'host_dashboard.html', {'properties': properties, 'bookings': bookings})
 
+
+from django.core.exceptions import ValidationError
+
+
 @user_is_host
 @csrf_exempt
 @require_POST
 def add_property_ajax(request):
-    # Extract fields from the POST request
-    hotel_name = request.POST.get("Hotel")
-    category = request.POST.get("Category")
-    rating = request.POST.get("Rating")
-    address = request.POST.get("Address")
-    contact = request.POST.get("Contact")
-    price = request.POST.get("Price")
-    amenities = request.POST.get("Amenities")
-    image_url = request.POST.get("Image_URL")
-    location = request.POST.get("Location")
-    page_url = request.POST.get("Page_URL")
-    
-    # Create a new Property instance
-    property_instance = Property(
-        host=request.user,
-        Hotel=hotel_name,
-        Category=category,
-        Rating=rating if rating else None,  # Handle optional fields
-        Address=address,
-        Contact=contact,
-        Price=price,
-        Amenities=amenities,
-        Image_URL=image_url,
-        Location=location,
-        Page_URL=page_url
-    )
-    
-    # Save the property instance
-    property_instance.save()
+    try:
+        # Extract fields from the POST request
+        hotel_name = request.POST.get("Hotel")
+        category = request.POST.get("Category")
+        rating = request.POST.get("Rating")
+        address = request.POST.get("Address")
+        contact = request.POST.get("Contact")
+        price = request.POST.get("Price")
+        amenities = request.POST.get("Amenities")
+        image_url = request.POST.get("Image_URL")
+        location = request.POST.get("Location")
+        page_url = request.POST.get("Page_URL")
+        
+        # Validate required fields
+        required_fields = [hotel_name, category, address, contact, price, location]
+        if any(field is None or field.strip() == '' for field in required_fields):
+            return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
 
-    return JsonResponse({'success': True, 'message': 'Property added successfully.'}, status=201)
+        # Create a new Property instance
+        property_instance = Property(
+            host=request.user,
+            Hotel=hotel_name,
+            Category=category,
+            Address=address,
+            Contact=contact,
+            Price=price,
+            Amenities=amenities,
+            Image_URL=image_url,
+            Location=location,
+            Page_URL=page_url
+        )
+        
+        # Save the property instance
+        property_instance.full_clean()  # Validate model data before saving
+        property_instance.save()
+
+        return JsonResponse({'success': True, 'message': 'Property added successfully.'}, status=201)
+
+    except ValidationError as ve:
+        # Handle validation errors
+        return JsonResponse({'success': False, 'message': str(ve)}, status=400)
+    except Exception as e:
+        # Catch other exceptions and return a generic error message
+        return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)}, status=500)
+
 
 def home(request):
     if not request.user.is_authenticated:
@@ -168,7 +186,7 @@ def edit_property(request, property_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Property updated successfully.")
-            return redirect('main:my_properties')
+            return redirect('main:host_dashboard')
     else:
         form = PropertyForm(instance=property_instance)
 
