@@ -51,10 +51,18 @@
 <nav class="bg-white text-gray-800 p-4 flex justify-between items-center shadow-lg">
     <div class="flex items-center">
         <a href="{% url 'booking:hotel_search' %}" class="flex items-center">
-            <img src="{% static 'image/logo.png' %}" class="mr-3 h-8" alt="App Logo" />
-            <span class="self-center text-xl font-bold text-gray-800">Bali N Chill</span>
+            <!-- Adjust the size of the logo -->
+            <img src="{% static 'image/logo.png' %}" class="mr-3 h-16" alt="App Logo" /> 
+    
+            <!-- Adjust the styling for "BaliNChill" -->
+            <span class="self-center text-xl font-bold text-gray-800">
+                <span style="color: #B89B7C;">Bali</span>
+                <span style="font-size: 1.5em; color: #B89B7C;">N</span>
+                <span style="color: #B89B7C;">Chill</span>
+            </span>
         </a>
     </div>
+    
     <div class="flex items-center space-x-4">
         {% if user.is_authenticated %}
             <span class="mr-4">Welcome, {{ user.username }}</span>
