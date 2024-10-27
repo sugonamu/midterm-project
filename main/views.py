@@ -18,6 +18,7 @@ def is_host(user):
 def is_guest(user):
     return user.is_authenticated and user.userprofile.role == 'guest'
 
+
 def user_is_host(view_func):
     @login_required
     @wraps(view_func)
