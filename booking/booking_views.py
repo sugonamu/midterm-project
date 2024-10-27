@@ -36,6 +36,7 @@ def hotel_search(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         hotels_data = [
             {
+                'id': hotel.id,
                 'Hotel': hotel.Hotel,
                 'Price': hotel.Price,
                 'Rating': hotel.Rating,

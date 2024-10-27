@@ -202,4 +202,60 @@
             color: #fff;
         }
     </style>
+
+    <!-- AJAX Script with Debounce -->
+    <script>
+        let debounceTimeout; // Variable to store the timeout ID
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            // Clear the previous timeout
+            clearTimeout(debounceTimeout);
+            
+            // Set a new timeout to trigger the search after 500ms
+            debounceTimeout = setTimeout(() => {
+                fetchResults(); // Call AJAX search after the user stops typing
+            }, 1000); // 500ms delay (half a second)
+        });
+
+        function fetchResults() {
+            const query = document.getElementById('searchInput').value;
+            const sortOption = document.getElementById('sort').value;
+
+            fetch(`{% url 'booking:hotel_search' %}?q=${query}&sort=${sortOption}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update hotel grid with new results
+                updateHotelGrid(data);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function updateHotelGrid(data) {
+            const hotelGrid = document.getElementById('hotelResults');
+            hotelGrid.innerHTML = ''; // Clear existing results
+
+            if (data.hotels.length > 0) {
+                data.hotels.forEach(hotel => {
+                    hotelGrid.innerHTML += `
+                        <div class="hotel">
+                            <img src="${hotel.Image_URL}" alt="Image of ${hotel.Hotel}" 
+                                 onerror="this.onerror=null; this.src='{% static 'image/No_image.jpg' %}';" />
+                            <div class="hotel-content">
+                                <h3>${hotel.Hotel}</h3>
+                                <p class="price">Price: ${hotel.Price}</p>
+                                <p class="rating">Rating: ⭐ ${hotel.Rating}</p>
+                                <a href="/book/${hotel.id}/" class="book-now">Book Now</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                hotelGrid.innerHTML = '<p>No hotels found.</p>';
+            }
+        }
+    </script>
 {% endblock %}
