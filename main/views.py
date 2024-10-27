@@ -29,6 +29,7 @@ def user_is_host(view_func):
     return _wrapped_view
 
 
+
 @user_is_host
 def host_dashboard(request):
     properties = request.user.properties.all() 
