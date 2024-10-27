@@ -1,4 +1,4 @@
-{% extends 'base.html' %}  <!-- Extend the base template -->
+{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
@@ -9,7 +9,8 @@
         <div class="hotel-details">
             <!-- Hotel Image -->
             <div class="hotel-image">
-                <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}">
+                <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}" 
+                     onerror="this.onerror=null;this.src='{% static 'image/No_image.jpg' %}'">
             </div>
 
             <!-- Hotel Info -->
@@ -25,7 +26,7 @@
                 </div>
 
                 <!-- Price -->
-                <p class="price">Price: Rp {{ hotel.Price }}</p>
+                <p class="price">Price:  {{ hotel.Price }}</p>
 
                 <!-- Payment Button -->
                 <a href="{% url 'payment:payment_page' hotel.id %}" class="payment-button">Proceed to Payment</a>
@@ -38,7 +39,8 @@
             <div class="related-hotels-container">
                 {% for related_hotel in related_hotels %}
                     <div class="related-hotel">
-                        <img src="{{ related_hotel.Image_URL }}" alt="Image of {{ related_hotel.Hotel }}">
+                        <img src="{{ related_hotel.Image_URL }}" alt="Image of {{ related_hotel.Hotel }}"
+                             onerror="this.onerror=null;this.src='{% static 'image/No_image.jpg' %}'">
                         <div class="related-hotel-content">
                             <h3>{{ related_hotel.Hotel }}</h3>
                             <p class="price">Price: {{ related_hotel.Price }}</p>
@@ -49,8 +51,6 @@
             </div>
         </div>
     </div>
-
-
 
     <style>
         body {
