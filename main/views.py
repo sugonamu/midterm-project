@@ -9,6 +9,8 @@ from django.urls import reverse
 from .forms import PropertyForm
 from .models import Property, UserProfile ,propRating, Booking
 from functools import wraps
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 def is_host(user):
     return user.is_authenticated and user.userprofile.role == 'host'
@@ -30,6 +32,42 @@ def host_dashboard(request):
     properties = request.user.properties.all() 
     bookings = Booking.objects.filter(property__in=properties)
     return render(request, 'host_dashboard.html', {'properties': properties, 'bookings': bookings})
+
+@user_is_host
+@csrf_exempt
+@require_POST
+def add_property_ajax(request):
+    # Extract fields from the POST request
+    hotel_name = request.POST.get("Hotel")
+    category = request.POST.get("Category")
+    rating = request.POST.get("Rating")
+    address = request.POST.get("Address")
+    contact = request.POST.get("Contact")
+    price = request.POST.get("Price")
+    amenities = request.POST.get("Amenities")
+    image_url = request.POST.get("Image_URL")
+    location = request.POST.get("Location")
+    page_url = request.POST.get("Page_URL")
+    
+    # Create a new Property instance
+    property_instance = Property(
+        host=request.user,
+        Hotel=hotel_name,
+        Category=category,
+        Rating=rating if rating else None,  # Handle optional fields
+        Address=address,
+        Contact=contact,
+        Price=price,
+        Amenities=amenities,
+        Image_URL=image_url,
+        Location=location,
+        Page_URL=page_url
+    )
+    
+    # Save the property instance
+    property_instance.save()
+
+    return JsonResponse({'success': True, 'message': 'Property added successfully.'}, status=201)
 
 def home(request):
     if not request.user.is_authenticated:

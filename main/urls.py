@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import add_property_ajax
 
 app_name = 'main'
 
@@ -16,5 +17,6 @@ urlpatterns = [
     path('properties/<uuid:property_id>/rate/', views.add_rating, name='add_rating'),
     path('property/<uuid:property_id>/reviews/', views.property_reviews, name='property_reviews'),
     path('host_dashboard/', views.host_dashboard, name='host_dashboard'),
+    path('add-property-ajax/', add_property_ajax, name='add_property_ajax'),  # This is for handling AJAX
 
 ]
