@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Avg, Count
-
+from booking.models import Hotel
 import uuid
 
 from django.contrib.auth.models import User
@@ -12,10 +12,9 @@ class Property(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     Hotel = models.TextField(null=True, blank=True)  # Hotel name
     Category = models.TextField(null=True, blank=True)  # Hotel category
-    Rating = models.FloatField(null=True, blank=True)  # Rating of the hotel
     Address = models.TextField(null=True, blank=True)  # Address of the hotel
     Contact = models.TextField(null=True, blank=True)  # Contact information
-    Price = models.TextField(null=True, blank=True)  # Price in the string format
+    Price = models.TextField(null=True, blank=True)  # Price in string format
     Amenities = models.TextField(null=True, blank=True)  # Amenities provided by the hotel
     Image_URL = models.TextField(null=True, blank=True)  # URL of the image
     Location = models.TextField(null=True, blank=True)  # Location of the hotel
@@ -26,15 +25,30 @@ class Property(models.Model):
         avg_rating = self.ratings.aggregate(Avg('rating'))['rating__avg']
         return avg_rating if avg_rating is not None else 0.0
 
-#
     @property
     def rating_count(self):
         return self.ratings.aggregate(Count('id'))['id__count'] or 0
-    
+
+    def save(self, *args, **kwargs):
+        # Create a Hotel instance when saving a Property instance
+        hotel_instance, created = Hotel.objects.get_or_create(
+            Hotel=self.Hotel,
+            defaults={
+                'Category': self.Category,
+                'Address': self.Address,
+                'Contact': self.Contact,
+                'Price': self.Price,
+                'Amenities': self.Amenities,
+                'Image_URL': self.Image_URL,
+                'Location': self.Location,
+                'Page_URL': self.Page_URL,
+            }
+        )
+        super().save(*args, **kwargs)  # Save the property instance
 
     def __str__(self):
-        return self.title
-
+        return self.Hotel or 'Unknown Property'
+    
 class Booking(models.Model):
     guest = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='bookings')
