@@ -34,8 +34,7 @@ Guests are users who seek accommodations on the platform. Their primary function
 - **Browse Listings**: Search for and view properties available for rent.
 - **Make Bookings**: Reserve accommodations based on availability and preferences.
 - **Leave Reviews**: Provide feedback and rate their stay to assist future guests in their decision-making.
-- **Manage Profile**: Update personal information, view booking history, and manage preferences.
-
+- **Manage Profile**: Update personal information.
 ### 2. Hosts
 Hosts are property owners who list their accommodations on the platform. Their key responsibilities include:
 - **Add Properties**: Create new listings with detailed descriptions and photos of their accommodations.
@@ -45,5 +44,5 @@ Hosts are property owners who list their accommodations on the platform. Their k
 
 
 ### **Application deployment link** <br>
-http://william-samuel-balinchill.pbp.cs.ui.ac.id
+http://william-samuel-balinchilll.pbp.cs.ui.ac.id
 

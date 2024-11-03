@@ -25,5 +25,4 @@ class AuthenticationTests(TestCase):
         user = User.objects.get(username='testuser')
         profile = UserProfile.objects.get(user=user)
         self.assertEqual(profile.role, 'guest')
-
-    
+        

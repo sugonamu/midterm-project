@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User  # Make sure to import the User model
 
-
-
-
 class Hotel(models.Model):
     Hotel = models.TextField(null=True, blank=True)  # Hotel name
     Category = models.TextField(null=True, blank=True)  # Hotel category

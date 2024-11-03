@@ -19,7 +19,6 @@ class PropertyForm(forms.ModelForm):
         fields = [
             'Hotel',               # Hotel name
             'Category',            # Hotel category
-            'Rating',              # Rating of the hotel
             'Address',             # Address of the hotel
             'Contact',             # Contact information
             'Price',               # Price in string format
@@ -32,7 +31,6 @@ class PropertyForm(forms.ModelForm):
         widgets = {
             'Hotel': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Hotel Name'}),
             'Category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Category'}),
-            'Rating': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Rating'}),
             'Address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
             'Contact': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Information'}),
             'Price': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Price'}),

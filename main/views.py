@@ -18,6 +18,7 @@ def is_host(user):
 def is_guest(user):
     return user.is_authenticated and user.userprofile.role == 'guest'
 
+
 def user_is_host(view_func):
     @login_required
     @wraps(view_func)
@@ -26,6 +27,8 @@ def user_is_host(view_func):
             return render(request, 'not_host.html')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
+
 
 @user_is_host
 def host_dashboard(request):
