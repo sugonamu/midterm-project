@@ -86,18 +86,6 @@ def add_property_ajax(request):
         # Catch other exceptions and return a generic error message
         return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)}, status=500)
 
-
-def home(request):
-    if not request.user.is_authenticated:
-        return redirect('main:login')
-    properties = Property.objects.order_by('?')[:6]
-    user_properties = request.user.properties.all() if request.user.userprofile.role == 'host' else []
-    return render(request, 'home.html', {
-        'properties': properties,
-        'user_properties': user_properties,
-        'last_login': request.COOKIES.get('last_login')
-    })
-
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -148,34 +136,26 @@ def logout(request):
     response.delete_cookie('last_login')
     return response
 
-def property_detail(request, property_id):
-    property_instance = get_object_or_404(Property, id=property_id)
-    
-    user_rating = None
-    if request.user.is_authenticated:
-        user_rating = Rating.objects.filter(property=property_instance, user=request.user).first()
-
-    return render(request, 'property_detail.html', {
-        'property': property_instance,
-        'user_rating': user_rating  
-    })
-
 @user_is_host
 def add_property(request):
     if request.method == "POST":
-        form = PropertyForm(request.POST, request.FILES)  # Make sure to include request.FILES for file uploads
+        form = PropertyForm(request.POST, request.FILES)  # Include request.FILES for file uploads
         if form.is_valid():
             property_instance = form.save(commit=False)
             property_instance.host = request.user  # Set the host to the logged-in user
-            property_instance.save()  # Save the property instance to the database
             
-            return JsonResponse({'success': True, 'message': 'Property added successfully.'})
+            try:
+                property_instance.save()  # Save the property instance to the database
+                return JsonResponse({'success': True, 'message': 'Property added successfully.'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})  # Return error if save fails
         else:
-            return JsonResponse({'success': False, 'errors': form.errors})  # Return form errors in JSON format
+            # Return form errors in JSON format
+            return JsonResponse({'success': False, 'errors': form.errors.as_json()})
 
     # Handle GET request by rendering the form
     form = PropertyForm()  # Create a blank form instance
-    return render(request, 'addproperty.html', {'form': form})  # Render the form template
+    return render(request, 'addproperty.html', {'form': form})
 
 @user_is_host
 def edit_property(request, property_id):
@@ -197,6 +177,14 @@ def delete_property(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id)
     property_instance.delete()
     return HttpResponseRedirect(reverse('main:host_dashboard'))
+
+@user_is_host
+def fetch_properties(request):
+    if request.method == 'GET':
+        properties = Property.objects.all().values('Hotel', 'Category', 'Address', 'Price')  # Add other fields as needed
+        property_list = list(properties)  # Convert QuerySet to list for JSON serialization
+        return JsonResponse({'properties': property_list})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def property_list(request):
     properties = Property.objects.all()
