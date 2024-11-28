@@ -26,7 +26,7 @@ urlpatterns = [
     path('', include('main.urls')),  # Include main app URLs
     path('users/', include('users.urls')),  # Include user app URLs
     path('users/', include(('users.urls', 'users'), namespace='users')),
-
+    path('auth/', include('authentication.urls')),
 ]
 
 if settings.DEBUG:

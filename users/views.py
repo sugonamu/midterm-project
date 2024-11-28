@@ -2,10 +2,61 @@ from django.shortcuts import render
 from .models import Profile
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from django.contrib.auth import login
-from django.contrib.auth.models import User
 from .forms import UserUpdateForm, ProfileUpdateForm  
 from django.contrib import messages
+from django.http import HttpResponse
+from django.core import serializers
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+import json
+from .models import Profile
+from .forms import UserUpdateForm, ProfileUpdateForm
+
+
+@csrf_exempt
+@login_required
+def update_profile_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Get the user's profile
+            profile = Profile.objects.get(user=request.user)
+
+            # Create forms with data
+            u_form = UserUpdateForm(data, instance=request.user)
+            p_form = ProfileUpdateForm(data, request.FILES, instance=profile)
+
+            # Validate and save forms
+            if u_form.is_valid() and p_form.is_valid():
+                u_form.save()
+                p_form.save()
+                return JsonResponse({"status": "success", "message": "Profile updated successfully!"}, status=200)
+            else:
+                # Collect errors from both forms
+                errors = {
+                    "user_form_errors": u_form.errors,
+                    "profile_form_errors": p_form.errors,
+                }
+                return JsonResponse({"status": "error", "errors": errors}, status=400)
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    elif request.method == 'GET':
+        # Fetch user and profile data
+        profile = Profile.objects.get(user=request.user)
+        data = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
+        }
+        return JsonResponse({"status": "success", "data": data}, status=200)
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
+    
+def show_json(request):
+    data = Profile.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
 @login_required  # Ensure that only logged-in users can access this view
 def profile_view(request):
