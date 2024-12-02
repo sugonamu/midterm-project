@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'payment',
     'corsheaders',
-]
+  ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
