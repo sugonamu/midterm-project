@@ -4,15 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from .forms import UserUpdateForm, ProfileUpdateForm  
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core import serializers
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import json
 from .models import Profile
-from .forms import UserUpdateForm, ProfileUpdateForm
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import ProfileSerializer, UserSerializer
+from rest_framework import generics
+from django.contrib.auth.models import User
 
 @csrf_exempt
 @login_required
@@ -87,3 +89,14 @@ def profile_view(request):
         'form_has_errors': form_has_errors,  # Pass the error flag to the context
     }
     return render(request, 'profile.html', context)
+
+
+class ProfileListView(APIView):
+    def get(self, request):
+        profiles = Profile.objects.all()
+        serializer = ProfileSerializer(profiles, many=True)
+        return Response(serializer.data)
+    
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
