@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Transaction, PaymentProfile, STATUS_TRANSACTION_PAID, PAYMENT_METHOD_CREDIT_CARD
 from booking.models import Hotel
+from rest_framework import viewsets
+from .serializers import PaymentProfileSerializer, TransactionSerializer
 
 @login_required
 def payment_page(request, hotel_id):
@@ -56,5 +58,12 @@ def payment_page(request, hotel_id):
     })
 
 def parse_rupiah_string_to_float(rupiah_string):
-    return float(rupiah_string.replace('Rp', '').replace('.', '').replace(',', '.')) 
+    return float(rupiah_string.replace('Rp', '').replace('.', '').replace(',', '.'))
 
+class PaymentProfileViewSet(viewsets.ModelViewSet):
+    queryset = PaymentProfile.objects.all()
+    serializer_class = PaymentProfileSerializer
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
