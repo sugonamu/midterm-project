@@ -7,3 +7,4 @@ urllib3
 pillow
 django_extensions
 pandas
+django-cors-headers

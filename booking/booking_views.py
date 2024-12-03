@@ -130,3 +130,17 @@ def add_rating(request, hotel_id):
         'hotel': hotel_instance,
         'existing_rating': existing_rating
     })
+
+from django.http import HttpResponse
+from django.core import serializers
+from .models import Rating  # Import your Rating model
+
+def show_json(request):
+    # Fetch all ratings (you can filter if needed)
+    ratings = Rating.objects.all()
+
+    # Serialize the data into JSON format
+    data = serializers.serialize('json', ratings)
+
+    # Return the JSON response
+    return HttpResponse(data, content_type='application/json')
