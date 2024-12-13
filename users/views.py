@@ -68,12 +68,22 @@ def profile_view(request):
     }
     return render(request, 'profile.html', context)
 
+def check_username_availability(request):
+    username = request.GET.get('username', None)
+    if username:
+        is_available = not User.objects.filter(username=username).exists()
+        return JsonResponse({'available': is_available})
+    else:
+        return JsonResponse({'available': False, 'error': 'Username not provided'})
 
-class ProfileListView(APIView):
+class UserProfileView(APIView):
     def get(self, request):
-        profiles = Profile.objects.all()
-        serializer = ProfileSerializer(profiles, many=True)
-        return Response(serializer.data)
+        try:
+            profile = Profile.objects.get(user=request.user)
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=404)
     
 class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
