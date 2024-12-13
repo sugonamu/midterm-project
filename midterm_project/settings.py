@@ -138,8 +138,8 @@ if DEBUG:
     ]
 else:
     STATIC_ROOT = BASE_DIR / 'static' # refers to /static root project in production mode
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = '/media/'
+MEDIA_URL = '/media/'  # Path for accessing media files
+MEDIA_ROOT = BASE_DIR / 'media'  # Directory where media files are stored
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # Directory where your static files (CSS, JS, images) will be stored
