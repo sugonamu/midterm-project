@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 import json
 from django.contrib.auth import logout as auth_logout
 from main.models import UserProfile, Property
+from django.core.exceptions import ValidationError
 
 @csrf_exempt
 def logout(request):
@@ -144,3 +145,62 @@ def delete_property(request, property_id):
         except Property.DoesNotExist:
             return JsonResponse({'error': 'Property not found'}, status=404)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+from django.utils.decorators import method_decorator
+
+
+@method_decorator(csrf_exempt, name='dispatch')  # Disable CSRF for API requests
+def add_property_ajax(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Only POST requests are allowed.'}, status=405)
+    
+    try:
+        # Parse JSON body
+        data = json.loads(request.body.decode('utf-8'))
+
+        # Extract fields from JSON
+        hotel_name = data.get("hotelName")
+        category = data.get("category")
+        address = data.get("address")
+        contact = data.get("contact")
+        price = data.get("price")
+        amenities = data.get("amenities")
+        image_url = data.get("imageUrl")
+        location = data.get("location")
+        page_url = data.get("pageUrl")
+
+        # Validate required fields
+        required_fields = [hotel_name, category, address, contact, price, location]
+        if any(field is None or field.strip() == '' for field in required_fields):
+            return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
+
+        # Create a new Property instance
+        property_instance = Property(
+            host=request.user,  # Assuming the user is authenticated
+            hotelName=hotel_name,
+            category=category,
+            address=address,
+            contact=contact,
+            price=price,
+            amenities=amenities,
+            imageUrl=image_url,
+            location=location,
+            pageUrl=page_url
+        )
+
+        # Save the property instance
+        property_instance.full_clean()  # Validate model data before saving
+        property_instance.save()
+
+        return JsonResponse({'success': True, 'message': 'Property added successfully.'}, status=201)
+
+    except ValidationError as ve:
+        # Handle validation errors
+        return JsonResponse({'success': False, 'message': str(ve)}, status=400)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON.'}, status=400)
+    except Exception as e:
+        # Catch other exceptions and return a generic error message
+        return JsonResponse({'success': False, 'message': f'An error occurred: {str(e)}'}, status=500)
+
+
