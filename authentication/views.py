@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 import json
 from django.contrib.auth import logout as auth_logout
+from main.models import UserProfile
 
 @csrf_exempt
 def logout(request):
@@ -31,14 +32,14 @@ def register(request):
         password2 = data['password2']
         role = data.get('role')
 
-        # Check if the passwords match
+        # Check if passwords match
         if password1 != password2:
             return JsonResponse({
                 "status": False,
                 "message": "Passwords do not match."
             }, status=400)
 
-        # Check if the username is already taken
+        # Check if the username already exists
         if User.objects.filter(username=username).exists():
             return JsonResponse({
                 "status": False,
@@ -47,7 +48,15 @@ def register(request):
 
         # Create the new user
         user = User.objects.create_user(username=username, password=password1)
-        user.save()
+
+        # Assign the role
+        if role in ['guest', 'host']:
+            UserProfile.objects.create(user=user, role=role)
+        else:
+            return JsonResponse({
+                "status": False,
+                "message": "Invalid role."
+            }, status=400)
 
         return JsonResponse({
             "username": user.username,
@@ -55,11 +64,11 @@ def register(request):
             "message": "User created successfully!"
         }, status=200)
 
-    else:
-        return JsonResponse({
-            "status": False,
-            "message": "Invalid request method."
-        }, status=400)
+    # Handle the case where the method is not POST
+    return JsonResponse({
+        "status": False,
+        "message": "Method not allowed. Please use POST."
+    }, status=405)
 
 @csrf_exempt
 def login(request):
