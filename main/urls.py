@@ -13,5 +13,6 @@ urlpatterns = [
     path('host_dashboard/', views.host_dashboard, name='host_dashboard'),
     path('add-property-ajax/', views.add_property_ajax, name='add_property_ajax'),
     path('fetch-properties/', views.fetch_properties, name='fetch_properties'),
+    path('user-profiles/', views.all_user_profiles_json, name='all_user_profiles_json'),
 
 ]

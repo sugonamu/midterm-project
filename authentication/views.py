@@ -29,6 +29,7 @@ def register(request):
         username = data['username']
         password1 = data['password1']
         password2 = data['password2']
+        role = data.get('role')
 
         # Check if the passwords match
         if password1 != password2:
