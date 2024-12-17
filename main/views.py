@@ -49,7 +49,7 @@ from django.core.exceptions import ValidationError
 def add_property_ajax(request):
     try:
         # Extract fields from the POST request
-        hotel_name = request.POST.get("Hotel")
+        Hotel = request.POST.get("Hotel")
         category = request.POST.get("Category")
         rating = request.POST.get("Rating")
         address = request.POST.get("Address")
@@ -61,14 +61,14 @@ def add_property_ajax(request):
         page_url = request.POST.get("Page_URL")
         
         # Validate required fields
-        required_fields = [hotel_name, category, address, contact, price, location]
+        required_fields = [Hotel, category, address, contact, price, location]
         if any(field is None or field.strip() == '' for field in required_fields):
             return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
 
         # Create a new Property instance
         property_instance = Property(
             host=request.user,
-            Hotel=hotel_name,
+            Hotel=Hotel,
             Category=category,
             Address=address,
             Contact=contact,
@@ -311,6 +311,18 @@ def add_property(request):
             return JsonResponse({'status': 'error', 'message': 'Invalid form data', 'errors': form.errors}, status=400)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def delete_property(request, property_id):
+    if request.method == 'POST':
+        try:
+            property_obj = Property.objects.get(id=property_id)
+            property_obj.delete()
+            return JsonResponse({'message': 'Property deleted successfully!'}, status=200)
+        except Property.DoesNotExist:
+            return JsonResponse({'error': 'Property not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 
 class PropertyListView(generics.ListCreateAPIView):
     serializer_class = PropertySerializer

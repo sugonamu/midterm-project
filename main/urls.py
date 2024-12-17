@@ -16,4 +16,5 @@ urlpatterns = [
     path('user-profiles/', views.all_user_profiles_json, name='all_user_profiles_json'),
     path('add_property/', views.add_property, name='add_property'),
     path('propertylistview/', views.PropertyListView.as_view(), name='propertylistview'),
+    path('delete/<uuid:property_id>/', views.delete_property , name = 'delete_property'),
 ]
