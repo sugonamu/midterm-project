@@ -70,9 +70,6 @@ class Property(models.Model):
     def __str__(self):
         return self.Hotel or 'Unknown Property'
 
-
-# Rest of your models remain unchanged
-
     
 class Booking(models.Model):
     guest = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')

@@ -14,5 +14,6 @@ urlpatterns = [
     path('add-property-ajax/', views.add_property_ajax, name='add_property_ajax'),
     path('fetch-properties/', views.fetch_properties, name='fetch_properties'),
     path('user-profiles/', views.all_user_profiles_json, name='all_user_profiles_json'),
-
+    path('add_property/', views.add_property, name='add_property'),
+    path('propertylistview/', views.PropertyListView.as_view(), name='propertylistview'),
 ]

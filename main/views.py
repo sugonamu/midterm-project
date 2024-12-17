@@ -21,15 +21,16 @@ def is_guest(user):
     return user.is_authenticated and user.userprofile.role == 'guest'
 
 
+from django.http import HttpResponseForbidden
+
 def user_is_host(view_func):
     @login_required
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if not is_host(request.user):
-            return render(request, 'not_host.html')
+            return HttpResponseForbidden()  # Deny access if not a host
         return view_func(request, *args, **kwargs)
     return _wrapped_view
-
 
 
 @user_is_host
@@ -284,3 +285,47 @@ def all_user_profiles_json(request):
     
     # Return the data as JSON
     return JsonResponse(data, safe=False)
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status, generics
+from .serializers import PropertySerializer
+from django.views.decorators.csrf import csrf_exempt
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+@login_required
+def add_property(request):
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES)
+        if form.is_valid():
+            property_instance = form.save(commit=False)
+            property_instance.host = request.user
+            property_instance.save()
+            return JsonResponse({'status': 'success', 'message': 'Property added successfully'}, status=201)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid form data', 'errors': form.errors}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+class PropertyListView(generics.ListCreateAPIView):
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return properties associated with the logged-in user
+        return Property.objects.filter(host=self.request.user)
+
+    def get(self, request):
+        # Fetch the properties using the overridden `get_queryset`
+        properties = self.get_queryset()
+        serializer = self.get_serializer(properties, many=True)
+        return Response(serializer.data)    
+    
+    def perform_create(self, serializer):
+        # Set the host to the logged-in user
+        serializer.save(host=self.request.user)
