@@ -14,6 +14,8 @@ from rest_framework.response import Response
 from .serializers import ProfileSerializer, UserSerializer
 from rest_framework import generics
 from django.contrib.auth.models import User
+from django.utils.html import strip_tags
+
 
 @csrf_exempt
 @login_required
@@ -30,9 +32,12 @@ def update_profile_flutter(request):
                 profile.save()
             return JsonResponse({'status': 'success', 'message': 'Profile updated successfully'}, status=200)
         else:
-            return JsonResponse({'status': 'error', 'message': 'Invalid form data'}, status=400)
+            # Extract the first error message
+            errors = u_form.errors.as_data()
+            first_error_message = strip_tags(next(iter(next(iter(errors.values())))).message)
+            return JsonResponse({'status': 'error', 'message': first_error_message}, status=400)
     else:
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
     
 def show_json(request):
     data = Profile.objects.all()
@@ -67,14 +72,6 @@ def profile_view(request):
         'form_has_errors': form_has_errors,  # Pass the error flag to the context
     }
     return render(request, 'profile.html', context)
-
-def check_username_availability(request):
-    username = request.GET.get('username', None)
-    if username:
-        is_available = not User.objects.filter(username=username).exists()
-        return JsonResponse({'available': is_available})
-    else:
-        return JsonResponse({'available': False, 'error': 'Username not provided'})
 
 class UserProfileView(APIView):
     def get(self, request):
