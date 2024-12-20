@@ -4,6 +4,9 @@ from .models import Transaction, PaymentProfile, STATUS_TRANSACTION_PAID, PAYMEN
 from booking.models import Hotel
 from rest_framework import viewsets
 from .serializers import PaymentProfileSerializer, TransactionSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 @login_required
 def payment_page(request, hotel_id):
@@ -67,3 +70,26 @@ class PaymentProfileViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+
+def payment_profile(request):
+    return render(request, 'payment_profile.html')
+
+@csrf_exempt
+def process_payment(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        phone_number = data.get('phone_number')
+        credit_card_number = data.get('credit_card_number')
+        valid_thru = data.get('valid_thru')
+        cvv = data.get('cvv')
+        card_name = data.get('card_name')
+
+        # Process the payment here
+        # For demonstration, let's assume the payment is always successful
+        response_data = {
+            'status': 'success',
+            'message': 'Payment processed successfully'
+        }
+        return JsonResponse(response_data)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
