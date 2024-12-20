@@ -11,5 +11,6 @@ router.register(r'transactions', TransactionViewSet, basename='transaction')
 
 urlpatterns = [
     path('<int:hotel_id>/', payment_page, name='payment_page'),
-    path('api/', include(router.urls)),  
+    path('api/', include(router.urls)), 
+    path('process-payment/', process_payment, name='process_payment'), 
 ]

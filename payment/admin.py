@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import PaymentProfile, Transaction
+
+admin.site.register(PaymentProfile)
+admin.site.register(Transaction)
