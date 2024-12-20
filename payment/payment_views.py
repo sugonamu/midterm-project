@@ -8,6 +8,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 
 def parse_rupiah_string_to_float(rupiah_string):
     # Remove the currency prefix
@@ -130,3 +133,12 @@ def process_payment(request):
         return JsonResponse(response_data)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+class UserBookingHistoryView(APIView):
+    def get(self, request):
+        try:
+            transactions = Transaction.objects.filter(user=request.user)
+            serializer = TransactionSerializer(transactions, many=True)
+            return Response(serializer.data)
+        except Transaction.DoesNotExist:
+            return Response({'error': 'No transactions found'}, status=404)
