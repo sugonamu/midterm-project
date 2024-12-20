@@ -37,31 +37,28 @@ class HotelList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission as needed
 
 
+
 class HotelDetail(generics.RetrieveUpdateDestroyAPIView):
     """
-    Retrieve, update, or delete a specific hotel.
+    Retrieve, update, or delete a specific hotel, including reviews.
     """
     queryset = Hotel.objects.annotate(
         avg_rating=Avg('booking_ratings__rating'),
         review_count=Count('booking_ratings')
-    )
+    ).prefetch_related('booking_ratings__user')  # Prefetch related reviews and users
     serializer_class = HotelSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission as needed
-
+    permission_classes = [IsAuthenticatedOrReadOnly]
+@method_decorator(csrf_exempt, name='dispatch')
 class AddRating(APIView):
     def post(self, request, hotel_id):
-        print(f"Request Origin: {request.META.get('HTTP_ORIGIN')}")
-        print(f"CSRF Token in Request: {request.META.get('HTTP_X_CSRFTOKEN')}")
-        print(f"CSRF Token in Cookie: {request.COOKIES.get('csrftoken')}")
-
         hotel = get_object_or_404(Hotel, id=hotel_id)
         serializer = RatingSerializer(data=request.data)
-
+        
         if serializer.is_valid():
             serializer.save(hotel=hotel, user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'success', 'message': 'Rating added successfully.'}, status=status.HTTP_201_CREATED)
+        
+        return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class HotelRatings(generics.ListAPIView):
     """
