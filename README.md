@@ -17,12 +17,12 @@ The main users of this platform are global travelers seeking a simpler, more per
 The website helps travelers by providing detailed property descriptions, user reviews, and an easy-to-navigate booking process, allowing them to plan their trips effortlessly. For hosts, the platform offers a streamlined way to manage bookings, promote their accommodations, and engage directly with guests, leading to increased opportunities for income and visibility.
 
 ## **List of modules to be implemented**
-* Hotel management module ( can be accessed by host), Host can make a new listing, see which of their listing are booked
-* Booking module (can be accessed by customer), here customer can see all the listing, sort, search, and filter by categories
-* Payment module (accesed by customer) this is where customer can do their payment
-* Rating module (accesed by customer) this is where customer can rate hotels
-* Authentication module ( this is where login, register and stuff)
-* User profile module ( accesed by customer) this is where user can customize their profil.
+* Hotel management module ( can be accessed by host), Host can make a new listing, see which of their listing are booked [Brian]
+* Booking module (can be accessed by customer), here customer can see all the listing, sort, search, and filter by categories [ William]
+* Payment module (accesed by customer) this is where customer can do their payment [Damar]
+* Rating module (accesed by customer) this is where customer can rate hotels [Zaki]
+* Authentication module ( this is where login, register and stuff) [Nala]
+* User profile module ( accesed by customer) this is where user can customize their profil. [Izzy]
     
 ## **Source of initial dataset for main product category**
 https://www.kaggle.com/datasets/jokottingkir/bali-hotels-and-destinations
@@ -34,8 +34,7 @@ Guests are users who seek accommodations on the platform. Their primary function
 - **Browse Listings**: Search for and view properties available for rent.
 - **Make Bookings**: Reserve accommodations based on availability and preferences.
 - **Leave Reviews**: Provide feedback and rate their stay to assist future guests in their decision-making.
-- **Manage Profile**: Update personal information, view booking history, and manage preferences.
-
+- **Manage Profile**: Update personal information.
 ### 2. Hosts
 Hosts are property owners who list their accommodations on the platform. Their key responsibilities include:
 - **Add Properties**: Create new listings with detailed descriptions and photos of their accommodations.
@@ -45,5 +44,5 @@ Hosts are property owners who list their accommodations on the platform. Their k
 
 
 ### **Application deployment link** <br>
-http://william-samuel-balinchill.pbp.cs.ui.ac.id
+http://william-samuel-balinchilll.pbp.cs.ui.ac.id
 

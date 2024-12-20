@@ -13,7 +13,6 @@ class PaymentPageTests(TestCase):
             Price='Rp1.000.000',
             Hotel='Test Hotel',
             Category='Luxury',
-            Rating=5,
             Amenities='Pool, Gym, Spa',
             Location='Test City',
             Address='123 Test Street'

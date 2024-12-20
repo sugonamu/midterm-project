@@ -25,9 +25,15 @@ SECRET_KEY = 'django-insecure-vh^r8(^y0zn^+-=5%s4-qtde+8d(wauebohgdroi#obsld%t#f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "william-samuel-balinchill.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "william-samuel-balinchilll.pbp.cs.ui.ac.id","10.0.2.2", 'made-izzy-balinchill.pbp.cs.ui.ac.id']
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost","http://127.0.0.1","http://pbp.cs.ui.ac.id/william.samuel/balinchill", "https://pbp.cs.ui.ac.id/william.samuel/balinchill"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://pbp.cs.ui.ac.id/william.samuel/balinchilll",
+    "https://pbp.cs.ui.ac.id/william.samuel/balinchilll",
+    "https://made-izzy-balinchill.pbp.cs.ui.ac.id"
+]
 
 # Application definition
 
@@ -43,6 +49,8 @@ INSTALLED_APPS = [
     'booking',
     'django_extensions',
     'payment',
+    'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'midterm_project.urls'
@@ -129,8 +138,8 @@ if DEBUG:
     ]
 else:
     STATIC_ROOT = BASE_DIR / 'static' # refers to /static root project in production mode
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = '/media/'
+MEDIA_URL = '/media/'  # Path for accessing media files
+MEDIA_ROOT = BASE_DIR / 'media'  # Directory where media files are stored
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # Directory where your static files (CSS, JS, images) will be stored
@@ -140,3 +149,12 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/login/'
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'

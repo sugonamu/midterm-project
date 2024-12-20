@@ -9,9 +9,9 @@
         <div class="hotel-details">
             <!-- Hotel Image -->
             <div class="hotel-image">
-                <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}" 
-                     onerror="this.onerror=null;this.src='{% static 'image/No_image.jpg' %}'">
-            </div>
+                <img src="{{ hotel.Image_URL }}" alt="Image of {{ hotel.Hotel }}"
+                     onerror="this.onerror=null; this.src='{% static 'image/No_image.jpg' %}';" />
+          </div>
 
             <!-- Hotel Info -->
             <div class="hotel-info">
@@ -30,7 +30,26 @@
 
                 <!-- Payment Button -->
                 <a href="{% url 'payment:payment_page' hotel.id %}" class="payment-button">Proceed to Payment</a>
+                <!-- Add Review Button -->
+                <a href="{% url 'booking:add_rating' hotel_id=hotel.id %}" class="payment-button">Add Review</a>
             </div>
+        </div>
+
+        <!-- Ratings Section -->
+        <div class="ratings-section">
+            <h2>Ratings & Reviews</h2>
+            {% if ratings %}
+                <ul>
+                    {% for rating in ratings %}
+                        <li>
+                            <strong>{{ rating.user.username }}:</strong> ⭐ {{ rating.rating }} - {{ rating.review }}
+                            <span class="date">{{ rating.created_at|date:"F j, Y" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No ratings yet. Be the first to leave a review!</p>
+            {% endif %}
         </div>
 
         <!-- Related Hotels Section -->
@@ -40,7 +59,9 @@
                 {% for related_hotel in related_hotels %}
                     <div class="related-hotel">
                         <img src="{{ related_hotel.Image_URL }}" alt="Image of {{ related_hotel.Hotel }}"
-                             onerror="this.onerror=null;this.src='{% static 'image/No_image.jpg' %}'">
+
+                             onerror="this.onerror=null; this.src='{% static 'image/No_image.jpg' %}';" />
+
                         <div class="related-hotel-content">
                             <h3>{{ related_hotel.Hotel }}</h3>
                             <p class="price">Price: {{ related_hotel.Price }}</p>
@@ -91,10 +112,6 @@
             margin-top: 0;
             font-size: 32px;
             color: #997A57; /* Rich Tan for Hotel Name */
-        }
-
-        .description {
-            margin: 20px 0;
         }
 
         .amenities {

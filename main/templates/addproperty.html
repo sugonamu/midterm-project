@@ -1,4 +1,4 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block title %}Add Property{% endblock title %}
 
@@ -6,87 +6,80 @@
 
 {% include 'hostnavbar.html' %}
 
-<div class="add-product-container flex flex-col items-center p-6 bg-gray-100 min-h-screen">
-    <h1 class="text-3xl font-bold mb-4">Add a New Property</h1>
+<div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-2xl font-semibold text-center mb-6">Add a New Property</h1>
 
-    <form method="POST" enctype="multipart/form-data" class="bg-grey p-6 rounded-lg shadow-md w-full max-w-lg">
-        {% csrf_token %}
-        <table class="w-full">
-            <tr>
-                <td><label for="id_Hotel">Hotel Name:</label></td>
-                <td>{{ form.Hotel }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Category">Category:</label></td>
-                <td>{{ form.Category }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Rating">Rating:</label></td>
-                <td>{{ form.Rating }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Address">Address:</label></td>
-                <td>{{ form.Address }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Contact">Contact:</label></td>
-                <td>{{ form.Contact }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Price">Price:</label></td>
-                <td>{{ form.Price }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Amenities">Amenities:</label></td>
-                <td>{{ form.Amenities }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Image_URL">Image URL:</label></td>
-                <td>{{ form.Image_URL }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Location">Location:</label></td>
-                <td>{{ form.Location }}</td>
-            </tr>
-            <tr>
-                <td><label for="id_Page_URL">Page URL:</label></td>
-                <td>{{ form.Page_URL }}</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td class="mt-4">
-                    <input type="submit" value="Add Property" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"/>
-                </td>
-            </tr>
-        </table>
-    </form>
+        <form method="POST" id="addPropertyForm" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="id_Hotel" class="block text-gray-700 font-medium mb-1">Hotel Name</label>
+                <input type="text" name="Hotel" id="id_Hotel" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Category" class="block text-gray-700 font-medium mb-1">Category</label>
+                <input type="text" name="Category" id="id_Category" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Address" class="block text-gray-700 font-medium mb-1">Address</label>
+                <input type="text" name="Address" id="id_Address" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Contact" class="block text-gray-700 font-medium mb-1">Contact</label>
+                <input type="text" name="Contact" id="id_Contact" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Price" class="block text-gray-700 font-medium mb-1">Price</label>
+                <input type="number" name="Price" id="id_Price" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Amenities" class="block text-gray-700 font-medium mb-1">Amenities</label>
+                <input type="text" name="Amenities" id="id_Amenities" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Image_URL" class="block text-gray-700 font-medium mb-1">Image URL</label>
+                <input type="url" name="Image_URL" id="id_Image_URL" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Location" class="block text-gray-700 font-medium mb-1">Location</label>
+                <input type="text" name="Location" id="id_Location" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div>
+                <label for="id_Page_URL" class="block text-gray-700 font-medium mb-1">Page URL</label>
+                <input type="url" name="Page_URL" id="id_Page_URL" class="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+            </div>
+            <div class="flex justify-center mt-6">
+                <input type="submit" value="Add Property" class="bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-600 transition duration-200"/>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
-document.querySelector('form').addEventListener('submit', function(event) {
-    event.preventDefault();  // Prevent the default form submission
-    const formData = new FormData(this);
+document.getElementById('addPropertyForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+    const formData = new FormData(this); // Gather form data
 
     fetch(this.action, {
         method: 'POST',
         body: formData,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest'  // Optional: lets the server know it's an AJAX request
+            'X-Requested-With': 'XMLHttpRequest' // Indicate that it's an AJAX request
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);  // Show success message
-            window.location.href = "{% url 'main:host_dashboard' %}";  // Redirect to the dashboard
+            alert(data.message); // Display success message
+            window.location.href = "{% url 'main:host_dashboard' %}"; // Redirect to the host dashboard
         } else {
             // Handle validation errors
             for (const [key, value] of Object.entries(data.errors)) {
-                alert(key + ": " + value.join(", "));  // Show the error messages
+                alert(`${key}: ${value.join(", ")}`);
             }
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => console.error('Error:', error)); // Log errors
 });
 </script>
 

@@ -1,11 +1,38 @@
-<h1>Payment was successfull</h1>
-<a href="{% url 'booking:hotel_search' %}">Go To Home Page</a>
-<h1>{{ full_name }}</h1>
-<h1>{{ email }}</h1>
-<h1>{{ mobile_number }}</h1>
-<h1>{{ credit_card_number }}</h1>
-<h1>{{ valid_thru }}</h1>
-<h1>{{ cvv }}</h1>
-<h1>{{ card_name }}</h1>
-<h1>{{ booking_date }}</h1>
-<h1>{{status}}</h1>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% include 'navbar.html' %}
+    <title>Payment Page</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    />
+    <style>
+        a {
+            color: inherit;
+            text-decoration: inherit;
+          }    
+    </style>
+    <div class="container mt-5 p-4 shadow-lg rounded bg-light">
+        <h2 class="text-center text-success">Payment Successful</h2>
+        <p class="text-center">Thank you for your booking. Your payment was successful.</p>
+        
+        <div class="mt-4 mb-4">
+            <h4>Booking Details</h4>
+            <p><strong>Full Name:</strong> {{ full_name }}</p>
+            <p><strong>Email:</strong> {{ email }}</p>
+            <p><strong>Mobile Number:</strong> {{ mobile_number }}</p>
+            <p><strong>Credit Card Number:</strong> {{ credit_card_number }}</p>
+            <p><strong>Valid Thru:</strong> {{ valid_thru }}</p>
+            <p><strong>CVV:</strong> {{ cvv }}</p>
+            <p><strong>Card Name:</strong> {{ card_name }}</p>
+            <p><strong>Booking Date:</strong> {{ booking_date }}</p>
+            <p><strong>Status:</strong> {{ status }}</p>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'booking:hotel_search' %}" class="btn btn-primary">Go To Home Page</a>
+        </div>
+    </div>
+{% endblock %}

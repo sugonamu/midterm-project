@@ -15,19 +15,19 @@
             </form>
         </div>
 
-        <!-- Sort By Dropdown -->
-        <div class="sort-container">
-            <label for="sort">Sort by Price:</label>
-            <select id="sort" onchange="fetchResults();">
-                <option value="asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
-                <option value="desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
-            </select>
-        </div>
+       <!-- Sort By Dropdown -->
+       <div class="sort-container">
+        <label for="sort">Sort by Price:</label>
+        <select id="sort" onchange="location = this.value;">
+            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=asc" {% if sort_by == 'asc' %}selected{% endif %}>Low to High</option>
+            <option value="{% url 'booking:hotel_search' %}?q={{ request.GET.q }}&sort=desc" {% if sort_by == 'desc' %}selected{% endif %}>High to Low</option>
+        </select>
     </div>
+</div>
+    
 
-    <!-- Hotel Preview Section -->
-    <div class="hotel-grid" id="hotelResults">
-        <!-- This section will be dynamically updated with AJAX -->
+     <!-- Hotel Preview Section -->
+     <div class="hotel-grid">
         {% if hotels %}
             {% for hotel in hotels %}
                 <div class="hotel">
@@ -36,7 +36,9 @@
                     <div class="hotel-content">
                         <h3>{{ hotel.Hotel }}</h3>
                         <p class="price">Price: {{ hotel.Price }}</p>
-                        <p class="rating">Rating: ⭐ {{ hotel.Rating }}</p>
+                        <p class="rating">
+                            Rating: ⭐ {{ hotel.avg_rating|default:"Not Rated" }} ({{ hotel.review_count }})
+                        </p>
                         <a href="{% url 'booking:book_hotel' hotel.id %}" class="book-now">Book Now</a>
                     </div>
                 </div>
@@ -232,7 +234,7 @@
         }
 
         function updateHotelGrid(data) {
-            const hotelGrid = document.getElementById('hotelResults');
+            const hotelGrid = document.getElementById('hotelResults'); 
             hotelGrid.innerHTML = ''; // Clear existing results
 
             if (data.hotels.length > 0) {
@@ -256,3 +258,7 @@
         }
     </script>
 {% endblock %}
+
+
+
+

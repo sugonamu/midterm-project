@@ -7,8 +7,12 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .forms import PropertyForm
-from .models import Property, UserProfile ,Rating, Booking
+from .models import Property, UserProfile ,propRating, Booking
 from functools import wraps
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.contrib.auth.hashers import make_password
+import json
 
 def is_host(user):
     return user.is_authenticated and user.userprofile.role == 'host'
@@ -16,14 +20,18 @@ def is_host(user):
 def is_guest(user):
     return user.is_authenticated and user.userprofile.role == 'guest'
 
+
+from django.http import HttpResponseForbidden
+
 def user_is_host(view_func):
     @login_required
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if not is_host(request.user):
-            return render(request, 'not_host.html')
+            return HttpResponseForbidden()  # Deny access if not a host
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
 
 @user_is_host
 def host_dashboard(request):
@@ -31,16 +39,58 @@ def host_dashboard(request):
     bookings = Booking.objects.filter(property__in=properties)
     return render(request, 'host_dashboard.html', {'properties': properties, 'bookings': bookings})
 
-def home(request):
-    if not request.user.is_authenticated:
-        return redirect('main:login')
-    properties = Property.objects.order_by('?')[:6]
-    user_properties = request.user.properties.all() if request.user.userprofile.role == 'host' else []
-    return render(request, 'home.html', {
-        'properties': properties,
-        'user_properties': user_properties,
-        'last_login': request.COOKIES.get('last_login')
-    })
+
+from django.core.exceptions import ValidationError
+
+
+@user_is_host
+@csrf_exempt
+@require_POST
+def add_property_ajax(request):
+    try:
+        # Extract fields from the POST request
+        Hotel = request.POST.get("Hotel")
+        category = request.POST.get("Category")
+        rating = request.POST.get("Rating")
+        address = request.POST.get("Address")
+        contact = request.POST.get("Contact")
+        price = request.POST.get("Price")
+        amenities = request.POST.get("Amenities")
+        image_url = request.POST.get("Image_URL")
+        location = request.POST.get("Location")
+        page_url = request.POST.get("Page_URL")
+        
+        # Validate required fields
+        required_fields = [Hotel, category, address, contact, price, location]
+        if any(field is None or field.strip() == '' for field in required_fields):
+            return JsonResponse({'success': False, 'message': 'All fields are required.'}, status=400)
+
+        # Create a new Property instance
+        property_instance = Property(
+            host=request.user,
+            Hotel=Hotel,
+            Category=category,
+            Address=address,
+            Contact=contact,
+            Price=price,
+            Amenities=amenities,
+            Image_URL=image_url,
+            Location=location,
+            Page_URL=page_url
+        )
+        
+        # Save the property instance
+        property_instance.full_clean()  # Validate model data before saving
+        property_instance.save()
+
+        return JsonResponse({'success': True, 'message': 'Property added successfully.'}, status=201)
+
+    except ValidationError as ve:
+        # Handle validation errors
+        return JsonResponse({'success': False, 'message': str(ve)}, status=400)
+    except Exception as e:
+        # Catch other exceptions and return a generic error message
+        return JsonResponse({'success': False, 'message': 'An error occurred: ' + str(e)}, status=500)
 
 def login_view(request):
     if request.method == 'POST':
@@ -69,22 +119,45 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password1'])
-            user.save()
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
+            username = data.get('username')
+            password1 = data.get('password1')
+            password2 = data.get('password2')
+            role = data.get('role')
 
-            role = request.POST.get('role')
-            UserProfile.objects.create(user=user, role=role)
+            # Validate input
+            if not username or not password1 or not password2 or not role:
+                return JsonResponse({'status': 'error', 'message': 'All fields are required.'}, status=400)
 
-            messages.success(request, "Registration successful. You can now log in.")
-            return redirect('main:login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
+            if password1 != password2:
+                return JsonResponse({'status': 'error', 'message': 'Passwords do not match.'}, status=400)
+
+            # Check if the username already exists
+            if UserProfile.objects.filter(username=username).exists():
+                return JsonResponse({'status': 'error', 'message': 'Username already exists.'}, status=400)
+
+            # Create the User object and set password properly
+            user = UserProfile.objects.create_user(username=username, password=password1)
+
+            # Create associated UserProfile with role
+            user_profile = UserProfile.objects.create(user=user, role=role)
+
+            # Optionally, you can send a confirmation email or handle further user setup
+
+            return JsonResponse({'status': 'success', 'message': 'Registration successful.'}, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON.'}, status=400)
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
 def logout(request):
     auth_logout(request)
@@ -92,34 +165,26 @@ def logout(request):
     response.delete_cookie('last_login')
     return response
 
-def property_detail(request, property_id):
-    property_instance = get_object_or_404(Property, id=property_id)
-    
-    user_rating = None
-    if request.user.is_authenticated:
-        user_rating = Rating.objects.filter(property=property_instance, user=request.user).first()
-
-    return render(request, 'property_detail.html', {
-        'property': property_instance,
-        'user_rating': user_rating  
-    })
-
 @user_is_host
 def add_property(request):
     if request.method == "POST":
-        form = PropertyForm(request.POST, request.FILES)  # Make sure to include request.FILES for file uploads
+        form = PropertyForm(request.POST, request.FILES)  # Include request.FILES for file uploads
         if form.is_valid():
             property_instance = form.save(commit=False)
             property_instance.host = request.user  # Set the host to the logged-in user
-            property_instance.save()  # Save the property instance to the database
             
-            return JsonResponse({'success': True, 'message': 'Property added successfully.'})
+            try:
+                property_instance.save()  # Save the property instance to the database
+                return JsonResponse({'success': True, 'message': 'Property added successfully.'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})  # Return error if save fails
         else:
-            return JsonResponse({'success': False, 'errors': form.errors})  # Return form errors in JSON format
+            # Return form errors in JSON format
+            return JsonResponse({'success': False, 'errors': form.errors.as_json()})
 
     # Handle GET request by rendering the form
     form = PropertyForm()  # Create a blank form instance
-    return render(request, 'addproperty.html', {'form': form})  # Render the form template
+    return render(request, 'addproperty.html', {'form': form})
 
 @user_is_host
 def edit_property(request, property_id):
@@ -130,7 +195,7 @@ def edit_property(request, property_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Property updated successfully.")
-            return redirect('main:my_properties')
+            return redirect('main:host_dashboard')
     else:
         form = PropertyForm(instance=property_instance)
 
@@ -141,6 +206,14 @@ def delete_property(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id)
     property_instance.delete()
     return HttpResponseRedirect(reverse('main:host_dashboard'))
+
+@user_is_host
+def fetch_properties(request):
+    if request.method == 'GET':
+        properties = Property.objects.all().values('Hotel', 'Category', 'Address', 'Price')  # Add other fields as needed
+        property_list = list(properties)  # Convert QuerySet to list for JSON serialization
+        return JsonResponse({'properties': property_list})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def property_list(request):
     properties = Property.objects.all()
@@ -169,7 +242,7 @@ def add_rating(request, property_id):
     property_instance = get_object_or_404(Property, pk=property_id)
     
     # Check if the user has already rated this property
-    existing_rating = Rating.objects.filter(property=property_instance, user=request.user).first()
+    existing_rating = propRating.objects.filter(property=property_instance, user=request.user).first()
     
     if request.method == "POST":
         rating_value = request.POST.get('rating')  # Get the rating from the form input
@@ -182,7 +255,7 @@ def add_rating(request, property_id):
             existing_rating.save()
         else:
             # Create a new rating
-            Rating.objects.create(
+            propRating.objects.create(
                 property=property_instance,
                 user=request.user,
                 rating=rating_value,
@@ -197,3 +270,74 @@ def add_rating(request, property_id):
         'property': property_instance,
         'existing_rating': existing_rating
     })
+
+def all_user_profiles_json(request):
+    # Get all UserProfile objects
+    user_profiles = UserProfile.objects.all()
+
+    # Create a list of dictionaries to store each user profile's data
+    data = []
+    for user_profile in user_profiles:
+        data.append({
+            'username': user_profile.user.username,
+            'role': user_profile.role,
+        })
+    
+    # Return the data as JSON
+    return JsonResponse(data, safe=False)
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status, generics
+from .serializers import PropertySerializer
+from django.views.decorators.csrf import csrf_exempt
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+@login_required
+def add_property(request):
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES)
+        if form.is_valid():
+            property_instance = form.save(commit=False)
+            property_instance.host = request.user
+            property_instance.save()
+            return JsonResponse({'status': 'success', 'message': 'Property added successfully'}, status=201)
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid form data', 'errors': form.errors}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def delete_property(request, property_id):
+    if request.method == 'POST':
+        try:
+            property_obj = Property.objects.get(id=property_id)
+            property_obj.delete()
+            return JsonResponse({'message': 'Property deleted successfully!'}, status=200)
+        except Property.DoesNotExist:
+            return JsonResponse({'error': 'Property not found'}, status=404)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+class PropertyListView(generics.ListCreateAPIView):
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Return properties associated with the logged-in user
+        return Property.objects.filter(host=self.request.user)
+
+    def get(self, request):
+        # Fetch the properties using the overridden `get_queryset`
+        properties = self.get_queryset()
+        serializer = self.get_serializer(properties, many=True)
+        return Response(serializer.data)    
+    
+    def perform_create(self, serializer):
+        # Set the host to the logged-in user
+        serializer.save(host=self.request.user)

@@ -2,9 +2,8 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Avg, Count
-
+from booking.models import Hotel
 import uuid
-
 from django.contrib.auth.models import User
 
 class Property(models.Model):
@@ -12,10 +11,9 @@ class Property(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     Hotel = models.TextField(null=True, blank=True)  # Hotel name
     Category = models.TextField(null=True, blank=True)  # Hotel category
-    Rating = models.FloatField(null=True, blank=True)  # Rating of the hotel
     Address = models.TextField(null=True, blank=True)  # Address of the hotel
     Contact = models.TextField(null=True, blank=True)  # Contact information
-    Price = models.TextField(null=True, blank=True)  # Price in the string format
+    Price = models.TextField(null=True, blank=True)  # Price in string format
     Amenities = models.TextField(null=True, blank=True)  # Amenities provided by the hotel
     Image_URL = models.TextField(null=True, blank=True)  # URL of the image
     Location = models.TextField(null=True, blank=True)  # Location of the hotel
@@ -23,18 +21,56 @@ class Property(models.Model):
 
     @property
     def average_rating(self):
-        avg_rating = self.ratings.aggregate(Avg('rating'))['rating__avg']
+        avg_rating = self.main_ratings.aggregate(Avg('rating'))['rating__avg']
         return avg_rating if avg_rating is not None else 0.0
 
-#
     @property
     def rating_count(self):
-        return self.ratings.aggregate(Count('id'))['id__count'] or 0
-    
+        return self.main_ratings.aggregate(Count('id'))['id__count'] or 0
+
+    def save(self, *args, **kwargs):
+        # Try to get the existing Hotel instance based on the hotel name
+        hotel_instance = Hotel.objects.filter(Hotel=self.Hotel).first()
+
+        if hotel_instance is None:
+            # If the hotel does not exist, create a new one
+            hotel_instance = Hotel.objects.create(
+                Hotel=self.Hotel,
+                Category=self.Category,
+                Address=self.Address,
+                Contact=self.Contact,
+                Price=self.Price,
+                Amenities=self.Amenities,
+                Image_URL=self.Image_URL,
+                Location=self.Location,
+                Page_URL=self.Page_URL,
+            )
+        else:
+            # If the hotel already exists, update its details
+            hotel_instance.Category = self.Category
+            hotel_instance.Address = self.Address
+            hotel_instance.Contact = self.Contact
+            hotel_instance.Price = self.Price
+            hotel_instance.Amenities = self.Amenities
+            hotel_instance.Image_URL = self.Image_URL
+            hotel_instance.Location = self.Location
+            hotel_instance.Page_URL = self.Page_URL
+            hotel_instance.save()  # Save the updated hotel instance
+
+        super().save(*args, **kwargs)  # Save the property instance
+
+    def delete(self, *args, **kwargs):
+        # Get the associated Hotel instance and delete it
+        hotel_instance = Hotel.objects.filter(Hotel=self.Hotel).first()
+        if hotel_instance:
+            hotel_instance.delete()  # Delete the associated hotel instance
+        
+        super().delete(*args, **kwargs)  # Delete the property instance
 
     def __str__(self):
-        return self.title
+        return self.Hotel or 'Unknown Property'
 
+    
 class Booking(models.Model):
     guest = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='bookings')
@@ -53,8 +89,10 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-class Rating(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="ratings")
+
+
+class propRating(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="main_ratings")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rating = models.PositiveIntegerField()  # Rating out of 5
     review = models.TextField(blank=True, null=True)

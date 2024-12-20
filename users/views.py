@@ -2,10 +2,46 @@ from django.shortcuts import render
 from .models import Profile
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from django.contrib.auth import login
-from django.contrib.auth.models import User
 from .forms import UserUpdateForm, ProfileUpdateForm  
 from django.contrib import messages
+from django.http import HttpResponse, JsonResponse
+from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from .models import Profile
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import ProfileSerializer, UserSerializer
+from rest_framework import generics
+from django.contrib.auth.models import User
+from django.utils.html import strip_tags
+
+
+@csrf_exempt
+@login_required
+def update_profile_flutter(request):
+    if request.method == 'POST':
+        profile = Profile.objects.get(user=request.user)
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+
+        if u_form.is_valid():
+            u_form.save()
+            image_path = request.POST.get('image')
+            if image_path:
+                profile.image = image_path
+                profile.save()
+            return JsonResponse({'status': 'success', 'message': 'Profile updated successfully'}, status=200)
+        else:
+            # Extract the first error message
+            errors = u_form.errors.as_data()
+            first_error_message = strip_tags(next(iter(next(iter(errors.values())))).message)
+            return JsonResponse({'status': 'error', 'message': first_error_message}, status=400)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    
+def show_json(request):
+    data = Profile.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
 @login_required  # Ensure that only logged-in users can access this view
 def profile_view(request):
@@ -36,3 +72,16 @@ def profile_view(request):
         'form_has_errors': form_has_errors,  # Pass the error flag to the context
     }
     return render(request, 'profile.html', context)
+
+class UserProfileView(APIView):
+    def get(self, request):
+        try:
+            profile = Profile.objects.get(user=request.user)
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=404)
+    
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
