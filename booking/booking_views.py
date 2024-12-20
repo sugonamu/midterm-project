@@ -9,8 +9,7 @@ import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
 from .models import Hotel, Rating
 from .serializers import HotelSerializer, RatingSerializer
 
@@ -48,17 +47,39 @@ class HotelDetail(generics.RetrieveUpdateDestroyAPIView):
     ).prefetch_related('booking_ratings__user')  # Prefetch related reviews and users
     serializer_class = HotelSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-@method_decorator(csrf_exempt, name='dispatch')
-class AddRating(APIView):
-    def post(self, request, hotel_id):
-        hotel = get_object_or_404(Hotel, id=hotel_id)
-        serializer = RatingSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            serializer.save(hotel=hotel, user=request.user)
-            return Response({'status': 'success', 'message': 'Rating added successfully.'}, status=status.HTTP_201_CREATED)
-        
-        return Response({'status': 'error', 'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+@login_required
+def add_rating_flutter(request, hotel_id):
+    hotel = get_object_or_404(Hotel, id=hotel_id)
+    
+    if request.method == 'POST':
+        rating_value = request.POST.get('rating')
+        review_text = request.POST.get('review')
+
+        try:
+            rating_value = int(rating_value)
+        except (ValueError, TypeError):
+            return HttpResponseBadRequest("Invalid rating value")
+
+        existing_rating = Rating.objects.filter(hotel=hotel, user=request.user).first()
+
+        if existing_rating:
+            existing_rating.rating = rating_value
+            existing_rating.review = review_text
+            existing_rating.save()
+        else:
+            Rating.objects.create(
+                hotel=hotel,
+                user=request.user,
+                rating=rating_value,
+                review=review_text
+            )
+
+        return JsonResponse({'status': 'success', 'message': 'Rating added successfully.'}, status=201)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
 
 class HotelRatings(generics.ListAPIView):
     """
@@ -69,8 +90,6 @@ class HotelRatings(generics.ListAPIView):
     def get_queryset(self):
         hotel_id = self.kwargs['hotel_id']
         return Rating.objects.filter(hotel_id=hotel_id).select_related('user', 'hotel')
-
-
 
 
 def get_hotels(request):
