@@ -1,52 +1,116 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse,JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.core import serializers
-from .models import Hotel,Rating
-from django.db.models import Avg,Count
+from django.db.models import Avg, Count
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from .models import Hotel, Rating
+from .serializers import HotelSerializer, RatingSerializer
+
+
+# ---------------------
+# DRF Generic Views
+# ---------------------
+
+class HotelList(generics.ListCreateAPIView):
+    """
+    Lists all hotels with annotated average rating and review count.
+    Allows creating a new hotel.
+    """
+    queryset = Hotel.objects.annotate(
+        avg_rating=Avg('booking_ratings__rating'),
+        review_count=Count('booking_ratings')
+    )
+    serializer_class = HotelSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission as needed
+
+
+class HotelDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update, or delete a specific hotel.
+    """
+    queryset = Hotel.objects.annotate(
+        avg_rating=Avg('booking_ratings__rating'),
+        review_count=Count('booking_ratings')
+    )
+    serializer_class = HotelSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission as needed
+
+
+class AddRating(APIView):
+    """
+    Add a new rating for a hotel.
+    User must be authenticated to add a rating.
+    """
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission if needed
+
+    def post(self, request, hotel_id):
+        hotel = get_object_or_404(Hotel, id=hotel_id)
+        serializer = RatingSerializer(data=request.data)
+        if serializer.is_valid():
+            # Save rating with attached hotel and user
+            serializer.save(hotel=hotel, user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class HotelRatings(generics.ListAPIView):
+    """
+    Retrieve all ratings for a given hotel.
+    """
+    serializer_class = RatingSerializer
+
+    def get_queryset(self):
+        hotel_id = self.kwargs['hotel_id']
+        return Rating.objects.filter(hotel_id=hotel_id).select_related('user', 'hotel')
+
+
+# ---------------------
+# Views for Non-API Pages
+# ---------------------
 
 def get_hotels(request):
+    # Direct JSON serialization of hotels
     data = Hotel.objects.all()
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
-from django.db.models import Avg, Count
-from django.http import JsonResponse
-from django.shortcuts import render
-from .models import Hotel
 
 def clean_price(price_str):
+    # Consider storing Price as a numeric field in the database for better performance
     cleaned_price = price_str.replace('Rp', '').replace('.', '').strip()
     return int(cleaned_price)
 
+
 def hotel_search(request):
-    query = request.GET.get('q', '')  # Get the search query
-    sort_by = request.GET.get('sort', 'asc')  # Get the sorting order, default to 'asc'
+    query = request.GET.get('q', '')
+    sort_by = request.GET.get('sort', 'asc')
+
+    # If you can't change the database schema, you still have to do this in Python
+    # Otherwise, convert Price to a numeric field and use order_by in queryset.
+    hotels = Hotel.objects.all()
 
     if query:
-        hotels = Hotel.objects.filter(
-            Hotel__icontains=query
-        ) | Hotel.objects.filter(
-            Location__icontains=query
-        )
-    else:
-        hotels = Hotel.objects.all()
+        hotels = hotels.filter(Hotel__icontains=query) | hotels.filter(Location__icontains=query)
 
-    # Annotate average rating and count of ratings
+    # Annotate average rating and review count
     hotels = hotels.annotate(
-        avg_rating=Avg('booking_ratings__rating'),  # Average rating
-        review_count=Count('booking_ratings')  # Count of reviews
+        avg_rating=Avg('booking_ratings__rating'),
+        review_count=Count('booking_ratings')
     )
 
-    # Sort by price
-    hotels = list(hotels)  # Convert queryset to a list to allow sorting with custom logic
+    # Convert to a list for Python-based sorting
+    hotels_list = list(hotels)
     if sort_by == 'desc':
-        hotels.sort(key=lambda x: clean_price(x.Price), reverse=True)
+        hotels_list.sort(key=lambda x: clean_price(x.Price), reverse=True)
     else:
-        hotels.sort(key=lambda x: clean_price(x.Price))
+        hotels_list.sort(key=lambda x: clean_price(x.Price))
 
-    # Check if the request is AJAX
+    # If AJAX, return JSON data
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         hotels_data = [
             {
@@ -57,59 +121,53 @@ def hotel_search(request):
                 'review_count': hotel.review_count,
                 'Image_URL': hotel.Image_URL,
             }
-            for hotel in hotels
+            for hotel in hotels_list
         ]
         return JsonResponse({'hotels': hotels_data})
 
-    # Render the full page if not AJAX
-    return render(request, 'booking/hotel_search.html', {'hotels': hotels, 'sort_by': sort_by})
+    # Render the full page for non-AJAX requests
+    return render(request, 'booking/hotel_search.html', {'hotels': hotels_list, 'sort_by': sort_by})
 
 
-# Booking view (assuming a simple booking model)
+@login_required
 def book_hotel(request, hotel_id):
+    # Ensure user is logged in to book hotel
     hotel = get_object_or_404(Hotel, id=hotel_id)
-    
-    # Split amenities by commas
     amenities_list = hotel.Amenities.split(',')
-
-    # Get related hotels by location (excluding the current hotel)
     related_hotels = Hotel.objects.filter(Location=hotel.Location).exclude(id=hotel.id)
-
-    # Fetch the ratings for the current hotel
-    ratings = hotel.booking_ratings.all()  # This accesses the related ratings using the related_name
+    ratings = hotel.booking_ratings.select_related('user').all()  # Prefetch ratings
 
     return render(request, 'booking/book_hotel.html', {
         'hotel': hotel,
-        'amenities_list': amenities_list,  # Pass the split amenities list to the template
+        'amenities_list': amenities_list,
         'related_hotels': related_hotels,
-        'ratings': ratings  # Pass the ratings to the template
+        'ratings': ratings
     })
+
 
 def booking_success(request):
     return render(request, 'booking/booking_success.html')
 
 
-
-
-
+@login_required
 def add_rating(request, hotel_id):
     hotel_instance = get_object_or_404(Hotel, pk=hotel_id)
-    
+
     # Check if the user has already rated this hotel
     existing_rating = Rating.objects.filter(hotel=hotel_instance, user=request.user).first()
-    
+
     if request.method == "POST":
         rating_value = request.POST.get('rating')
         review_text = request.POST.get('review')
-        
-        # Ensure rating_value is a number
+
+        # Validate rating value
         try:
             rating_value = int(rating_value)
         except (ValueError, TypeError):
             return HttpResponseBadRequest("Invalid rating value")
 
         if existing_rating:
-            # Update the existing rating
+            # Update existing rating
             existing_rating.rating = rating_value
             existing_rating.review = review_text
             existing_rating.save()
@@ -122,25 +180,18 @@ def add_rating(request, hotel_id):
                 review=review_text
             )
 
-        # Redirect to the hotel detail page after adding/updating the rating
-        return redirect('booking:book_hotel', hotel_id=hotel_instance.id)  # Adjust URL as necessary
+        # Redirect to hotel detail page
+        return redirect('booking:book_hotel', hotel_id=hotel_instance.id)
 
-    # If GET request, render the rating form
+    # GET request: render the rating form
     return render(request, 'booking/add_rating.html', {
         'hotel': hotel_instance,
         'existing_rating': existing_rating
     })
 
-from django.http import HttpResponse
-from django.core import serializers
-from .models import Rating  # Import your Rating model
 
 def show_json(request):
-    # Fetch all ratings (you can filter if needed)
-    ratings = Rating.objects.all()
-
-    # Serialize the data into JSON format
+    # Fetch all ratings and serialize
+    ratings = Rating.objects.select_related('hotel', 'user').all()
     data = serializers.serialize('json', ratings)
-
-    # Return the JSON response
     return HttpResponse(data, content_type='application/json')

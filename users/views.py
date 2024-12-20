@@ -8,53 +8,36 @@ from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-import json
 from .models import Profile
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ProfileSerializer, UserSerializer
 from rest_framework import generics
 from django.contrib.auth.models import User
+from django.utils.html import strip_tags
+
 
 @csrf_exempt
 @login_required
 def update_profile_flutter(request):
     if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-
-            # Get the user's profile
-            profile = Profile.objects.get(user=request.user)
-
-            # Create forms with data
-            u_form = UserUpdateForm(data, instance=request.user)
-            p_form = ProfileUpdateForm(data, request.FILES, instance=profile)
-
-            # Validate and save forms
-            if u_form.is_valid() and p_form.is_valid():
-                u_form.save()
-                p_form.save()
-                return JsonResponse({"status": "success", "message": "Profile updated successfully!"}, status=200)
-            else:
-                # Collect errors from both forms
-                errors = {
-                    "user_form_errors": u_form.errors,
-                    "profile_form_errors": p_form.errors,
-                }
-                return JsonResponse({"status": "error", "errors": errors}, status=400)
-        except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)}, status=500)
-    elif request.method == 'GET':
-        # Fetch user and profile data
         profile = Profile.objects.get(user=request.user)
-        data = {
-            "username": request.user.username,
-            "email": request.user.email,
-            "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
-        }
-        return JsonResponse({"status": "success", "data": data}, status=200)
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+
+        if u_form.is_valid():
+            u_form.save()
+            image_path = request.POST.get('image')
+            if image_path:
+                profile.image = image_path
+                profile.save()
+            return JsonResponse({'status': 'success', 'message': 'Profile updated successfully'}, status=200)
+        else:
+            # Extract the first error message
+            errors = u_form.errors.as_data()
+            first_error_message = strip_tags(next(iter(next(iter(errors.values())))).message)
+            return JsonResponse({'status': 'error', 'message': first_error_message}, status=400)
     else:
-        return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
     
 def show_json(request):
     data = Profile.objects.all()
@@ -90,12 +73,14 @@ def profile_view(request):
     }
     return render(request, 'profile.html', context)
 
-
-class ProfileListView(APIView):
+class UserProfileView(APIView):
     def get(self, request):
-        profiles = Profile.objects.all()
-        serializer = ProfileSerializer(profiles, many=True)
-        return Response(serializer.data)
+        try:
+            profile = Profile.objects.get(user=request.user)
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=404)
     
 class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
