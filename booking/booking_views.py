@@ -3,7 +3,8 @@ from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.core import serializers
 from django.db.models import Avg, Count
 from django.contrib.auth.decorators import login_required
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -47,23 +48,20 @@ class HotelDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HotelSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission as needed
 
-
 class AddRating(APIView):
-    """
-    Add a new rating for a hotel.
-    User must be authenticated to add a rating.
-    """
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Adjust permission if needed
-
     def post(self, request, hotel_id):
+        print(f"Request Origin: {request.META.get('HTTP_ORIGIN')}")
+        print(f"CSRF Token in Request: {request.META.get('HTTP_X_CSRFTOKEN')}")
+        print(f"CSRF Token in Cookie: {request.COOKIES.get('csrftoken')}")
+
         hotel = get_object_or_404(Hotel, id=hotel_id)
         serializer = RatingSerializer(data=request.data)
+
         if serializer.is_valid():
-            # Save rating with attached hotel and user
             serializer.save(hotel=hotel, user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class HotelRatings(generics.ListAPIView):
     """

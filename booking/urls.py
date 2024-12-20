@@ -15,5 +15,7 @@ urlpatterns = [
     path('api/hotels/<int:hotel_id>/add-rating/', booking_views.AddRating.as_view(), name='add-rating'),
     path('proxy-image/', booking_views.proxy_image, name='proxy_image'),
 
+    
+
 ]
 
