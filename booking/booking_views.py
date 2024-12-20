@@ -4,6 +4,7 @@ from django.core import serializers
 from django.db.models import Avg, Count
 from django.contrib.auth.decorators import login_required
 
+import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -12,10 +13,15 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Hotel, Rating
 from .serializers import HotelSerializer, RatingSerializer
 
+def proxy_image(request):
+    original_url = request.GET.get('url')
+    if not original_url:
+        return HttpResponse(status=400)
 
-# ---------------------
-# DRF Generic Views
-# ---------------------
+    response = requests.get(original_url, stream=True)
+    if response.status_code == 200:
+        return HttpResponse(response.content, content_type=response.headers.get('Content-Type'))
+    return HttpResponse(status=404)
 
 class HotelList(generics.ListCreateAPIView):
     """
@@ -70,9 +76,7 @@ class HotelRatings(generics.ListAPIView):
         return Rating.objects.filter(hotel_id=hotel_id).select_related('user', 'hotel')
 
 
-# ---------------------
-# Views for Non-API Pages
-# ---------------------
+
 
 def get_hotels(request):
     # Direct JSON serialization of hotels
