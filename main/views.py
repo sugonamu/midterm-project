@@ -166,7 +166,7 @@ def logout(request):
     return response
 
 @user_is_host
-def add_property(request):
+def add_property_django(request):
     if request.method == "POST":
         form = PropertyForm(request.POST, request.FILES)  # Include request.FILES for file uploads
         if form.is_valid():
@@ -341,3 +341,57 @@ class PropertyListView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # Set the host to the logged-in user
         serializer.save(host=self.request.user)
+
+@csrf_exempt
+def edit_property_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            property_id = data.get('id')
+
+            # Fetch the property instance
+            property_instance = Property.objects.get(id=property_id)
+
+            # Update the fields
+            property_instance.Hotel = data.get('Hotel', property_instance.Hotel)
+            property_instance.Category = data.get('Category', property_instance.Category)
+            property_instance.Address = data.get('Address', property_instance.Address)
+            property_instance.Contact = data.get('Contact', property_instance.Contact)
+            property_instance.Price = data.get('Price', property_instance.Price)
+            property_instance.Amenities = data.get('Amenities', property_instance.Amenities)
+            property_instance.Image_URL = data.get('Image_URL', property_instance.Image_URL)
+            property_instance.Location = data.get('Location', property_instance.Location)
+            property_instance.Page_URL = data.get('Page_URL', property_instance.Page_URL)
+
+            # Save the updated property instance
+            property_instance.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Property updated successfully'})
+        except Property.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Property not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    
+
+
+@csrf_exempt
+def get_property_details(request, property_id):
+    try:
+        property_instance = Property.objects.get(id=property_id)
+        property_data = {
+            'id': property_instance.id,
+            'Hotel': property_instance.Hotel,
+            'Category': property_instance.Category,
+            'Address': property_instance.Address,
+            'Contact': property_instance.Contact,
+            'Price': property_instance.Price,
+            'Amenities': property_instance.Amenities,
+            'Image_URL': property_instance.Image_URL,
+            'Location': property_instance.Location,
+            'Page_URL': property_instance.Page_URL,
+        }
+        return JsonResponse(property_data, safe=False)
+    except Property.DoesNotExist:
+        return JsonResponse({'error': 'Property not found'}, status=404)
