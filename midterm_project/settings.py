@@ -33,7 +33,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://pbp.cs.ui.ac.id/william.samuel/balinchilll",
     "https://pbp.cs.ui.ac.id/william.samuel/balinchilll",
     "https://made-izzy-balinchill.pbp.cs.ui.ac.id",
-    "https://william-samuel-balinchilll.pbp.cs.ui.ac.id/",
+    "https://william-samuel-balinchilll.pbp.cs.ui.ac.id",
 ]
 
 # Application definition
