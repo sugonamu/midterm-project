@@ -33,7 +33,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://pbp.cs.ui.ac.id/william.samuel/balinchilll",
     "https://pbp.cs.ui.ac.id/william.samuel/balinchilll",
     "https://made-izzy-balinchill.pbp.cs.ui.ac.id",
-    
+    "https://william-samuel-balinchilll.pbp.cs.ui.ac.id/",
 ]
 
 # Application definition
@@ -155,7 +155,7 @@ LOGIN_URL = '/login/'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
