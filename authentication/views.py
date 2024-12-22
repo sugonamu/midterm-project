@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 import json
 from django.contrib.auth import logout as auth_logout
 from main.models import UserProfile, Property
+import logging
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def logout(request):
@@ -76,6 +78,9 @@ def login(request):
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
+    logger.info(f"Authenticating user: {username}")
+    logger.info(f"Authenticated user: {user}")
+
     if user is not None:
         if user.is_active:
             auth_login(request, user)
