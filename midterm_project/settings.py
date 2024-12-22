@@ -66,6 +66,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'authentication.auth_backend.AccountAuthBackend', 
+    'django.contrib.auth.backends.ModelBackend', 
+]
+
 ROOT_URLCONF = 'midterm_project.urls'
 
 TEMPLATES = [

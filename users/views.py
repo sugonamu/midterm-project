@@ -73,7 +73,13 @@ def profile_view(request):
     }
     return render(request, 'profile.html', context)
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
 class UserProfileView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             profile = Profile.objects.get(user=request.user)
@@ -81,7 +87,7 @@ class UserProfileView(APIView):
             return Response(serializer.data)
         except Profile.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=404)
-    
+
 class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
